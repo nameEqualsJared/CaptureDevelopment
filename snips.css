@@ -1,0 +1,36 @@
+body {
+	margin: 10px auto;
+	max-width: 550px;
+	line-height: 1.5;
+	font-size: 18px;
+	color: #454545;
+}
+
+input {
+	width: 700px;
+	height: 30px;
+}
+
+textarea {
+	
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+
+	width: 100%;
+	
+	
+}
+
+.singleSnip {
+	background-color: #e6e6e6;
+	margin: 20px;
+	width: 650px;
+}
+
+
+.title {
+	font-weight: bold;
+}
+
+

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<style>
+			button {
+				height: 30px;
+				width: 300px;
+				margin: 10px;
+			}
+			
+			textarea {
+				height: 400px;
+				width: 300px;
+			}
+			
+			hr {
+				height: 10px;
+				background-color: black;
+			}
+			
+		</style>
+	</head>
+	<body>
+		<textarea id="inputText" autofocus></textarea> 
+		
+		<hr/>
+		<button id="saveButton">Save</button>
+
+		<button id="openSnipsButton">Open Snips</button>
+
+		<script src="pouchdb-7.0.0.min.js"></script>
+		<script src="snipModule.js"></script>
+		<script src="popup.js"></script>
+	</body>
+</html>

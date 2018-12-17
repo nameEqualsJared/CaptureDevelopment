@@ -1,0 +1,54 @@
+PouchDB notes 
+
+PouchDB can deal with two types of databases: local ones, and remote ones (on a server somewhere)
+
+To create a local one: 
+var db = new PouchDB("kittens"); //provided arg is the name of the db
+
+To create a remote one: 
+var db = new PouchDB('http://localhost:5984/kittens') //provided arg is the address of a CouchDB server 
+
+When you create a local PouchDB database, it uses whatever underlying datastore is available - IndexedDB in most browsers, WebSQL in older browsers, and LevelDB in Node.js (for out of browser use).
+
+When you create a remote PouchDB database, it communicates directly with the remote database – CouchDB, Cloudant, Couchbase, etc.
+
+The goal of PouchDB is to allow you to seamlessly communicate with one or the other. You should not notice many differences between the two, except that of course the local one is much faster!
+
+PouchDB API is ASYNCHRONOUS
+
+PouchDB is a NoSQL DB, meaning that we store unstructured documents rather than explcitly specifying a schema with rows, tables, and all that jazz. 
+
+A document can basically be any JS object. 
+
+Example: 
+var doc = {
+  "_id": "mittens",
+  "name": "Mittens",
+  "occupation": "kitten",
+  "age": 3,
+  "hobbies": [
+    "playing with balls of yarn",
+    "chasing laser pointers",
+    "lookin' hella cute"
+  ]
+}; 
+
+//To store a document, you simply put it. 
+db.put(doc);
+//Whenever you put a document (an object you want to store), it must have an _id field so that you can retrieve it later. 
+
+So now let's get() the document by using its _id: 
+db.get("mittens", function(err, doc){ if (err) { console.log(err)} else { console.log(doc) } });
+//Note the callback passed there! Also note that we don't need to give the callback function a a name.
+
+//The above code returns the kitten object, but it has an added field: _rev. What gives? This field is the revision marker. It is a randomly-generated ID that changes whenever a document is created or updated. Whenever you update a document, you MUST  present the entire document along with its current revision marker. 
+
+//For instance, to increment mittens age wed have to do:
+doc.age = 4;
+doc._rev = "1-bea5fa18e06522d12026f4aee6b15ee4";
+db.put(doc); 
+
+//If you fail to include the revision marker, youll get a 409 error. 
+
+
+
