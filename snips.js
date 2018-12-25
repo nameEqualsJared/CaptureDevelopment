@@ -7,7 +7,7 @@ let dbForTags = new PouchDB("dbForTags");
 //This div will house all the rendered snips, regardless of whether it's really all snips in storage or snips with a certain tag (if the user has searched)
 let divForRenderedSnips = document.createElement("div");
 divForRenderedSnips.id = "renderedSnips";
-document.body.appendChild(divForRenderedSnips);
+document.querySelector("main").appendChild(divForRenderedSnips);
 
 
 function renderAllSnips() {
@@ -29,7 +29,6 @@ function renderAllSnips() {
 }
 
 renderAllSnips();
-
 
 let searchBar = document.getElementById("search");
 
@@ -82,9 +81,6 @@ searchBar.onblur = function () {
 
 
 
-
-
-
 function clearChildrenFromDiv(div) {
 	//clear all the snips off the page 
 	// (deleting all children of the divForRenderedSnips)
@@ -124,8 +120,8 @@ function renderSnipToHTML(providedDiv, snip) {
 
 	//everything for the title/link
 	let p1 = document.createElement('p');
+	p1.className = "snip-title";
 	let s1 = document.createElement('span');
-	s1.className = 'title';
 	let s1text = document.createTextNode("Title: ");
 	s1.appendChild(s1text);
 	p1.append(s1);
@@ -138,6 +134,8 @@ function renderSnipToHTML(providedDiv, snip) {
 
 	//everything for the snip text
 	let ta = document.createElement('textarea');
+	ta.rows = 20;
+	ta.cols = 80;
 	let tatext = document.createTextNode(snip.snipText);
 	ta.appendChild(tatext);
 	ta.oninput = function () {
@@ -268,13 +266,17 @@ function renderSnipToHTML(providedDiv, snip) {
 	}
 	d.appendChild(ta);
 
-	//adding a p tag with the _id for debugging purposes (change to show a nice date. use a dict for the month)
+	//adding the date snipped a delete button
+	let d2 = document.createElement("div");
+	d2.className = "flexbox-container";
 	let p = document.createElement("p");
-	let ptext = document.createTextNode(snip._id);
+	p.className = "snipped-on";
+	let split = snip._id.slice(0, 9).split("-");
+	const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+	let ptext = document.createTextNode("Snipped on " + months[split[1] - 1] + " " + split[2] + ", " + split[0]);
 	p.appendChild(ptext);
-	d.appendChild(p);
+	d2.appendChild(p);
 
-	//adding a delete button for this snip
 	let b = document.createElement('button');
 	let btext = document.createTextNode("Delete");
 	b.appendChild(btext);
@@ -288,7 +290,8 @@ function renderSnipToHTML(providedDiv, snip) {
 			b.parentNode.parentNode.removeChild(b.parentNode);
 		}
 	}
-	d.appendChild(b);
+	d2.appendChild(b);
+	d.appendChild(d2);
 
 	providedDiv.appendChild(d);
 }
