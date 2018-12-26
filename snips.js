@@ -32,7 +32,8 @@ renderAllSnips();
 
 let searchBar = document.getElementById("search");
 
-searchBar.onblur = function () {
+// As of now, we search whenever the input field changes, which guarantees A LOT of searches, but a more responsive feel. Could change back to onblur for better performance.
+searchBar.oninput = function () {
 
 	let searchText = searchBar.value;
 
@@ -287,7 +288,7 @@ function renderSnipToHTML(providedDiv, snip) {
 			deleteSnip(snip);
 
 			//remove the snip from the page
-			b.parentNode.parentNode.removeChild(b.parentNode);
+			b.parentNode.parentNode.parentNode.removeChild(b.parentNode.parentNode);
 		}
 	}
 	d2.appendChild(b);

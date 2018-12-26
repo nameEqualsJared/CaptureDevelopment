@@ -3,17 +3,20 @@
 	"version": "1.0",
 	"description": "Minimum Viable Product of Capture",
 	"manifest_version": 2,
-	"permissions": [ "tabs", "storage" ],
+	"permissions": [
+		"tabs",
+		"storage"
+	],
 	"browser_action": {
 		"default_popup": "popup.html"
 	},
 	"commands": {
 		"_execute_browser_action": {
-		  "suggested_key": {
-			"default": "Ctrl+Shift+4",
-			"mac": "MacCtrl+Shift+4"
-		  },
-		  "description": "Opens popup.html"
+			"suggested_key": {
+				"default": "Alt+S",
+				"mac": "Alt+S"
+			},
+			"description": "Opens popup.html"
 		}
 	}
 }
