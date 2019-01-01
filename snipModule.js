@@ -1,6 +1,5 @@
 //this module provides a common function to popup.js and snips.js
 
-
 function deleteSnip(snip) {
 	//snip -- the document to be removed (the whole thing; not just the id);
 

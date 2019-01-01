@@ -3,7 +3,6 @@ let dbForSnips = new PouchDB("dbForSnips");
 let dbForTags = new PouchDB("dbForTags");
 
 
-
 //This div will house all the rendered snips, regardless of whether it's really all snips in storage or snips with a certain tag (if the user has searched)
 let divForRenderedSnips = document.createElement("div");
 divForRenderedSnips.id = "renderedSnips";
@@ -139,13 +138,12 @@ function renderSnipToHTML(providedDiv, snip) {
 	ta.cols = 80;
 	let tatext = document.createTextNode(snip.snipText);
 	ta.appendChild(tatext);
-	ta.oninput = function () {
+	ta.addEventListener("input", function () {
 		//Code for just saving plain snip text (does not deal with tags)
 
 		//as it is, this saves the snip anew everytime there is any change in the textarea.
 		//In the future may want to use .onblur to prevent so many saves...
 		//But for now, why not :P. It's convenient 
-
 		dbForSnips.get(snip._id, function (err, doc) {
 			if (err) {
 				console.log(err);
@@ -154,7 +152,7 @@ function renderSnipToHTML(providedDiv, snip) {
 				dbForSnips.put(doc);
 			}
 		});
-	}
+	});
 
 	ta.onblur = function () {
 		//Code for updating tags
@@ -265,6 +263,7 @@ function renderSnipToHTML(providedDiv, snip) {
 		}
 
 	}
+
 	d.appendChild(ta);
 
 	//adding the date snipped a delete button
@@ -295,17 +294,12 @@ function renderSnipToHTML(providedDiv, snip) {
 	d.appendChild(d2);
 
 	providedDiv.appendChild(d);
+
+	// The following code just makes the height of the textarea holding the snipText responsive; i.e., it makes it always fit all of the text. Has to be put here because the textarea must be rendered into the page for it to have a non-zero scroll height (and this is the first point it is)
+	ta.style.height = ta.scrollHeight + "px";
+	ta.addEventListener("input", function () {
+		ta.style.height = ta.scrollHeight + "px";
+	});
+
 }
 
-
-
-//code for making the textarea responsive; ie, make them resize automatically :)
-
-	//setting initial size
-	// console.log(ta.scrollHeight);
-	// ta.style.height = ta.scrollHeight;
-
-	//making it responsive
-	// ta.onkeyup = function(){
-		// ta.style.height = (ta.scrollHeight + 20) + "px";
-	// }

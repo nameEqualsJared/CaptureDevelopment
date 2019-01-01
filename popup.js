@@ -1,5 +1,3 @@
-
-
 //linking up all the buttons
 let saveButton = document.getElementById("saveButton");
 let openSnipsButton = document.getElementById("openSnipsButton");
