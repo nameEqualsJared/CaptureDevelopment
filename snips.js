@@ -303,3 +303,53 @@ function renderSnipToHTML(providedDiv, snip) {
 
 }
 
+
+function setUpSideTags() {
+	// This function renders all of the tags into the Tags sidebar. It also sets up each button so you can click it and see all the associated snips. It is used frequently to update all the tags in the side bar if anything changes.
+
+	let sideTagsDiv = document.querySelector(".side-tags-buttons");
+	clearChildrenFromDiv(sideTagsDiv); //delete all the buttons basically, because we are rerendering / updating them
+
+	dbForTags.allDocs({ include_docs: false, descending: true }, function (err, doc) {
+		if (err) {
+			console.log(err);
+		} else {
+			for (let entry of doc.rows) {
+				let tagName = entry.id; //tagName is literally the text of the tag
+				let btn = document.createElement("button");
+				let i = document.createElement("i");
+				i.className = "fas fa-tag";
+				btn.appendChild(i);
+				let btnText = document.createTextNode(tagName);
+				btn.appendChild(btnText);
+				sideTagsDiv.appendChild(btn);
+
+				// sets up the button so that, when clicked, it renders all snips with that tag
+				btn.onclick = function () {
+					clearChildrenFromDiv(divForRenderedSnips);
+					dbForTags.get(tagName, function (err, doc) {
+						if (err) {
+							console.log(err);
+						} else {
+							for (let ifOfSnipsWithThisTag of doc.snipsWithThisTag) {
+								// for each id of a snip with this tag, get it out of dbForSnips and render it
+								dbForSnips.get(ifOfSnipsWithThisTag, function (err, doc) {
+									if (err) {
+										console.log(err);
+									} else {
+										renderSnipToHTML(divForRenderedSnips, doc);
+									}
+								})
+							}
+						}
+					});
+				}
+
+
+			}
+
+		}
+	});
+}
+
+setUpSideTags();
