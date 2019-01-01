@@ -272,7 +272,7 @@ function renderSnipToHTML(providedDiv, snip) {
 	d2.className = "flexbox-container";
 	let p = document.createElement("p");
 	p.className = "snipped-on";
-	let split = snip._id.slice(0, 9).split("-");
+	let split = snip._id.slice(0, 10).split("-");
 	const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 	let ptext = document.createTextNode("Snipped on " + months[split[1] - 1] + " " + split[2] + ", " + split[0]);
 	p.appendChild(ptext);
