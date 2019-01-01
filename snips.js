@@ -29,57 +29,6 @@ function renderAllSnips() {
 
 renderAllSnips();
 
-let searchBar = document.getElementById("search");
-
-// As of now, we search whenever the input field changes, which guarantees A LOT of searches, but a more responsive feel. Could change back to onblur for better performance.
-searchBar.oninput = function () {
-
-	let searchText = searchBar.value;
-
-	if (searchText !== "") {
-		//if the search bar is not empty...  
-
-		//clear the page essentially
-		clearChildrenFromDiv(divForRenderedSnips);
-
-		// for this tag, use the dbForTags to get out an array of snip IDs of all the snips that have this tag
-		dbForTags.get(searchText, function (err, doc) {
-			if (err) {
-				console.log(err)
-			} else {
-				console.log(doc)
-				let snipsWithThisTag = doc.snipsWithThisTag;
-
-				// for each snip with this tag...
-				for (snip of snipsWithThisTag) {
-
-					// get it out of dbForSnips, and render it
-					dbForSnips.get(snip, function (err, doc) {
-						if (err) {
-							console.log(err)
-						} else {
-							renderSnipToHTML(divForRenderedSnips, doc)
-						}
-					})
-
-				}
-
-			}
-		});
-
-	} else {
-
-		//clear the page essentially
-		clearChildrenFromDiv(divForRenderedSnips);
-
-
-		//re render all the snips into the page
-		renderAllSnips();
-	}
-
-}
-
-
 
 function clearChildrenFromDiv(div) {
 	//clear all the snips off the page 
