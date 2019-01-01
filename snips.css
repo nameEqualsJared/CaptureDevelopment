@@ -2,29 +2,69 @@ html {
 	height: 300%;
 	font-family: sans-serif;
 	font-size: 16px;
-	--main-bg-color: rgba(238, 238, 238, 0.308);
+	--main-bg-color: rgba(235, 235, 235, 0.308);
+}
+
+body {
+	margin-left: 15px;
 }
 
 header {
 	background-color: rgb(248, 248, 248);
 	position: fixed;
 	top: 0;
-	left: 20%;
+	left: 19%;
 	height: 75px;
 	width: 78%;
 	z-index: 2;
 }
 
-nav {
+.side-buttons {
 	background-color: var(--main-bg-color);
 	width: 17%;
-	height: 400px;
+	height: 100px;
 	position: fixed;
-	top: 0px;
-	left: 20px;
+	top: 0;
 	text-align: center;
-	padding-top: 20px;
-	font-size: 20px;
+	font-size: 16px;
+}
+
+.side-tags {
+	background-color: var(--main-bg-color);
+	width: 17%;
+	height: 100%;
+	position: fixed;
+	top: 120px;
+}
+
+.side-tags p {
+	text-align: center;
+	font-size: 18px;
+	font-weight: bold;
+	margin-bottom: 8px;
+}
+
+.side-tags-buttons {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.side-tags-buttons button {
+	cursor: pointer;
+	border: none;
+	font-size: 16px;
+	margin: 1px;
+	background-color: rgb(238, 238, 238);
+}
+
+.side-tags-buttons button:hover {
+	background-color: rgb(212, 212, 212)
+}
+
+.fas {
+	font-size: 10px;
+	margin-right: 3px;
 }
 
 .search-bar {
@@ -40,7 +80,7 @@ main {
 	background-color: var(--main-bg-color);
 	position: absolute;
 	top: 90px;
-	left: 20%;
+	left: 19%;
 	width: 78%;
 }
 
@@ -88,4 +128,5 @@ textarea {
 	color: rgb(0, 0, 0);
 	border: 1;
 	border-radius: 3px;
+	cursor: pointer;
 }
