@@ -9,7 +9,7 @@ body {
 	margin-left: 15px;
 }
 
-.side-buttons {
+.top-left-sidebar {
 	background-color: var(--main-bg-color);
 	width: 17%;
 	height: 100px;
@@ -17,39 +17,86 @@ body {
 	top: 0;
 	text-align: center;
 	font-size: 16px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
 }
 
-.side-tags {
+.top-left-sidebar button {
+	cursor: pointer;
+	border: none;
+	font-size: 18px;
+	margin: 1px;
+	background-color: rgb(240, 240, 240);
+	color: rgb(36, 36, 36);
+	border-radius: 3px;
+	margin-bottom: 10px;
+	box-shadow: 1px 1px rgb(170, 170, 170);
+}
+
+.top-left-sidebar button:hover {
+	background-color: rgb(207, 207, 207);
+}
+
+.tag-sidebar {
 	background-color: var(--main-bg-color);
 	width: 17%;
 	height: 100%;
 	position: fixed;
 	top: 120px;
+	overflow-y: scroll;
 }
 
-.side-tags p {
+.tag-sidebar p {
 	text-align: center;
-	font-size: 18px;
+	font-size: 22px;
 	font-weight: bold;
 	margin-bottom: 8px;
+	margin-top: 14px;
 }
 
-.side-tags-buttons {
+.deselect-div {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
 }
 
-.side-tags-buttons button {
+.deselect {
+	cursor: pointer;
+	border: none;
+	font-size: 16px;
+	margin: 1px;
+	background-color: rgb(240, 240, 240);
+	color: rgb(36, 36, 36);
+	border-radius: 3px;
+	margin-bottom: 10px;
+	box-shadow: 1px 1px rgb(230, 230, 230);
+}
+
+.deselect:hover {
+	background-color: rgb(207, 207, 207);
+}
+
+.tag-sidebar-buttons {
+	display: flex;
+	flex-direction: column;
+	align-items: left;
+	margin-left: 25%;
+}
+
+.tag-sidebar-buttons button {
 	cursor: pointer;
 	border: none;
 	font-size: 16px;
 	margin: 1px;
 	background-color: rgb(238, 238, 238);
+	text-align: left;
+	width: 150px;
 }
 
-.side-tags-buttons button:hover {
-	background-color: rgb(212, 212, 212)
+.tag-sidebar-buttons button:hover {
+	background-color: rgb(212, 212, 212);
 }
 
 .fas {
@@ -102,12 +149,12 @@ textarea {
 
 .flexbox-container button {
 	margin: 10px 0px;
-	/* background-color: white;
-    border: 2px solid rgb(172, 171, 171);
-    border-radius: 5px; */
-	background-color: rgba(218, 218, 218, 0.534);
-	color: rgb(0, 0, 0);
-	border: 1;
-	border-radius: 3px;
 	cursor: pointer;
+	border: none;
+	font-size: 16px;
+	background-color: rgb(240, 240, 240);
+	color: rgb(36, 36, 36);
+	border-radius: 3px;
+	margin-bottom: 10px;
+	box-shadow: 1px 1px rgb(175, 175, 175);
 }

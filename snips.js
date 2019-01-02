@@ -3,7 +3,7 @@ let dbForSnips = new PouchDB("dbForSnips");
 let dbForTags = new PouchDB("dbForTags");
 
 
-//This div will house all the rendered snips, regardless of whether it's really all snips in storage or snips with a certain tag (if the user has searched)
+//This div will house all the rendered snips, regardless of whether it's really all snips in storage or snips with a certain tag 
 let divForRenderedSnips = document.createElement("div");
 divForRenderedSnips.id = "renderedSnips";
 document.querySelector("main").appendChild(divForRenderedSnips);
@@ -21,7 +21,6 @@ function renderAllSnips() {
 				let snip = entry.doc;
 
 				renderSnipToHTML(divForRenderedSnips, snip);
-				console.log(snip)
 			}
 		}
 	});
@@ -31,8 +30,9 @@ renderAllSnips();
 
 
 function clearChildrenFromDiv(div) {
-	//clear all the snips off the page 
-	// (deleting all children of the divForRenderedSnips)
+
+	console.log("INSIDE CLEAR");
+
 	while (div.firstChild) {
 		//null evaluates to false. firstChild() will return null if there are no children. 
 		//so the while says to continue as long as we have remaining children
@@ -40,7 +40,6 @@ function clearChildrenFromDiv(div) {
 		div.removeChild(div.firstChild);
 	}
 }
-
 
 function arraysEqual(a, b) {
 	//credit to enyo on SO for the function.
@@ -241,7 +240,6 @@ function renderSnipToHTML(providedDiv, snip) {
 	}
 	d2.appendChild(b);
 	d.appendChild(d2);
-
 	providedDiv.appendChild(d);
 
 	// The following code just makes the height of the textarea holding the snipText responsive; i.e., it makes it always fit all of the text. Has to be put here because the textarea must be rendered into the page for it to have a non-zero scroll height (and this is the first point it is)
@@ -256,13 +254,16 @@ function renderSnipToHTML(providedDiv, snip) {
 function setUpSideTags() {
 	// This function renders all of the tags into the Tags sidebar. It also sets up each button so you can click it and see all the associated snips. It is used frequently to update all the tags in the side bar if anything changes.
 
-	let sideTagsDiv = document.querySelector(".side-tags-buttons");
-	clearChildrenFromDiv(sideTagsDiv); //delete all the buttons basically, because we are rerendering / updating them
+	let sideTagsDiv = document.querySelector(".tag-sidebar-buttons");
 
 	dbForTags.allDocs({ include_docs: false, descending: true }, function (err, doc) {
+		console.log("IN ASYNC");
+		clearChildrenFromDiv(sideTagsDiv); 	//delete all the buttons, because we are rerendering / updating them
+		console.log(sideTagsDiv.outerHTML);
 		if (err) {
 			console.log(err);
 		} else {
+			console.log(JSON.stringify(doc));
 			for (let entry of doc.rows) {
 				let tagName = entry.id; //tagName is literally the text of the tag
 				let btn = document.createElement("button");
@@ -273,31 +274,9 @@ function setUpSideTags() {
 				btn.appendChild(btnText);
 				sideTagsDiv.appendChild(btn);
 
-				// sets up the button so that, when clicked, it renders all snips with that tag
-				btn.onclick = function () {
-					clearChildrenFromDiv(divForRenderedSnips);
-					dbForTags.get(tagName, function (err, doc) {
-						if (err) {
-							console.log(err);
-						} else {
-							for (let ifOfSnipsWithThisTag of doc.snipsWithThisTag) {
-								// for each id of a snip with this tag, get it out of dbForSnips and render it
-								dbForSnips.get(ifOfSnipsWithThisTag, function (err, doc) {
-									if (err) {
-										console.log(err);
-									} else {
-										renderSnipToHTML(divForRenderedSnips, doc);
-									}
-								})
-							}
-						}
-					});
-				}
-
-
 			}
-
 		}
+		console.log(sideTagsDiv.outerHTML);
 	});
 }
 

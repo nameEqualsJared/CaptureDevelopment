@@ -88,7 +88,7 @@ function saveANewSnip() {
 	let snipText = document.getElementById("inputText").value;
 
 	//Remember that we execute ALL the sync stuff first, and then the async stuff!
-	//Thus, the order of execution here is "30" (the function is kicked off but remember it is async!), then 92 (so getting the snipText), then all the stuff inside 30 when it finishes and "calls us back" :) (at which point the snipText will be available!!! That's the key to realize: really the order of execution is more like 90 then when the function calls us back :))
+	//Thus, the order of execution here is "30" (the function is kicked off but remember it is async!), then 26 (so getting the snipText), then all the stuff inside 26 when it finishes and "calls us back" :) (at which point the snipText will be available!!! That's the key to realize: really the order of execution is more like 90 then when the function calls us back :))
 
 
 }

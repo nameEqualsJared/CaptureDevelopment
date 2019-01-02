@@ -14,7 +14,6 @@ function deleteSnip(snip) {
 			if (err) {
 				console.log(err);
 			} else {
-
 				let snipsWithThisTag = doc.snipsWithThisTag;
 
 				//remove the id from the snipsWithThisTag array (cause we are deleting the snip)
@@ -23,10 +22,15 @@ function deleteSnip(snip) {
 					snipsWithThisTag.splice(index);
 				}
 
+
 				if (snipsWithThisTag.length === 0) {
 					//no more snips exist with this tag. So just delete the whole entry in dbForTags.
-
 					dbForTags.remove(doc);
+
+					// rerender all the snips in the sidebar. This function must be called here, as the async stuff above has to be done before it. Thus, we couldn't put it below otherwise it'd be called too early (without the dbForTags being updated), because sync stuff always gets executed first!
+					console.log("STARTING");
+					setUpSideTags();
+
 
 				} else {
 					//otherwise update the entry
