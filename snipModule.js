@@ -28,8 +28,8 @@ function deleteSnip(snip) {
 					dbForTags.remove(doc);
 
 					// rerender all the snips in the sidebar. This function must be called here, as the async stuff above has to be done before it. Thus, we couldn't put it below otherwise it'd be called too early (without the dbForTags being updated), because sync stuff always gets executed first!
-					console.log("STARTING");
 					setUpSideTags();
+					// could take out later if performance becomes a problem, because a simple page reload will also update the tags on the left. But this makes it a little more responsive
 
 
 				} else {

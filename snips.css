@@ -92,7 +92,7 @@ body {
 	margin: 1px;
 	background-color: rgb(238, 238, 238);
 	text-align: left;
-	width: 150px;
+	min-width: 80%;
 }
 
 .tag-sidebar-buttons button:hover {
@@ -157,4 +157,8 @@ textarea {
 	border-radius: 3px;
 	margin-bottom: 10px;
 	box-shadow: 1px 1px rgb(175, 175, 175);
+}
+
+.flexbox-container button:hover {
+	background-color: rgb(212, 212, 212);
 }
