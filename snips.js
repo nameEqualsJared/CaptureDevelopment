@@ -399,3 +399,8 @@ function renderSnips() {
 }
 
 renderSnips();
+
+
+document.querySelector(".export-button").onclick = function () {
+	chrome.tabs.create({ url: "export.html" });
+}
