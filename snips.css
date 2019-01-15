@@ -9,12 +9,13 @@ body {
 	margin-left: 15px;
 }
 
-.top-left-sidebar {
+.bottom-left-sidebar {
 	background-color: var(--main-bg-color);
 	width: 17%;
-	height: 100px;
+	height: 70px;
+	padding-bottom: 5px;
 	position: fixed;
-	top: 0;
+	bottom: 0;
 	text-align: center;
 	font-size: 16px;
 	display: flex;
@@ -23,28 +24,27 @@ body {
 	justify-content: center;
 }
 
-.top-left-sidebar button {
+.bottom-left-sidebar button {
 	cursor: pointer;
 	border: none;
-	font-size: 18px;
-	margin: 1px;
+	font-size: 16px;
+	margin-top: 10px;
 	background-color: rgb(240, 240, 240);
 	color: rgb(36, 36, 36);
 	border-radius: 3px;
-	margin-bottom: 10px;
 	box-shadow: 1px 1px rgb(170, 170, 170);
 }
 
-.top-left-sidebar button:hover {
+.bottom-left-sidebar button:hover {
 	background-color: rgb(207, 207, 207);
 }
 
 .tag-sidebar {
 	background-color: var(--main-bg-color);
 	width: 17%;
-	height: 100%;
+	height: 88%;
 	position: fixed;
-	top: 120px;
+	top: 0px;
 	overflow-y: scroll;
 }
 
@@ -71,7 +71,7 @@ body {
 	color: rgb(36, 36, 36);
 	border-radius: 3px;
 	margin-bottom: 10px;
-	box-shadow: 1px 1px rgb(230, 230, 230);
+	box-shadow: 1px 1px rgb(170, 170, 170);
 }
 
 .deselect:hover {
@@ -108,7 +108,7 @@ main {
 	background-color: var(--main-bg-color);
 	position: absolute;
 	left: 19%;
-	width: 78%;
+	width: 80%;
 }
 
 .singleSnip {

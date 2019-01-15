@@ -309,7 +309,9 @@ function setUpSideTags() {
 
 	// set up all the tag buttons
 	dbForTags.allDocs({ include_docs: false, descending: true }, function (err, doc) {
+
 		clearChildrenFromDiv(sideTagsDiv); 	//delete all the buttons, because we are rerendering / updating them
+
 		if (err) {
 			console.log(err);
 		} else {
