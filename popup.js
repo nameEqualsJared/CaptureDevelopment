@@ -1,10 +1,10 @@
 //linking up all the buttons
-let saveButton = document.getElementById("saveButton");
-let openSnipsButton = document.getElementById("openSnipsButton");
+const saveButton = document.getElementById("saveButton");
+const openSnipsButton = document.getElementById("openSnipsButton");
 
 //initializing the DBs (will either create a new one or link back up to the currently existing one)
-let dbForSnips = new PouchDB("dbForSnips");
-let dbForTags = new PouchDB("dbForTags");
+const dbForSnips = new PouchDB("dbForSnips");
+const dbForTags = new PouchDB("dbForTags");
 
 //defining a new object (providing constructor function for it)
 // Snip -- the object used to store a singular snip. 
@@ -24,12 +24,12 @@ function saveANewSnip() {
 
 	//get the current page title and address
 	chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
-		let currentURL = tabs[0].url;
-		let currentTitle = tabs[0].title;
+		const currentURL = tabs[0].url;
+		const currentTitle = tabs[0].title;
 
 		//"tags" will hold all the tags in the snipText (without hashtags)
 		let tags = [];
-		let tagArrayWithHashtags = snipText.match(/(#[1-9a-zA-z-]+)/g);
+		const tagArrayWithHashtags = snipText.match(/(#[1-9a-zA-z-]+)/g);
 		if (tagArrayWithHashtags) {
 			//if the tagArrayWithHashtags exists (not null)
 			for (let tag of tagArrayWithHashtags) {
@@ -39,7 +39,7 @@ function saveANewSnip() {
 		}
 
 		//_id holds the date of when this snip was created in a string 
-		_id = new Date().toISOString();
+		const _id = new Date().toISOString();
 
 		//Constructing the new snip.
 		currentSnip = new Snip(_id, currentURL, currentTitle, snipText, tags);
@@ -80,12 +80,10 @@ function saveANewSnip() {
 		//push the _id of the currently saved snip into the global
 		idOfSnipIfAlreadySaved.push(_id);
 
-		console.log(currentSnip);
-
 	});
 
 	//get the current snip text given by the user
-	let snipText = document.getElementById("inputText").value;
+	const snipText = document.getElementById("inputText").value;
 
 	//Remember that we execute ALL the sync stuff first, and then the async stuff!
 	//Thus, the order of execution here is "30" (the function is kicked off but remember it is async!), then 26 (so getting the snipText), then all the stuff inside 26 when it finishes and "calls us back" :) (at which point the snipText will be available!!! That's the key to realize: really the order of execution is more like 90 then when the function calls us back :))
@@ -95,7 +93,7 @@ function saveANewSnip() {
 
 
 idOfSnipIfAlreadySaved = [];
-//meant to be a global. Will only ever hold one element; the id of the snip if one has been saved.
+//meant to be a global. Will only ever hold one element; the id of the snip if one has been saved on this page.
 
 saveButton.onclick = function () {
 
@@ -107,7 +105,7 @@ saveButton.onclick = function () {
 	} else {
 		//One snip has been saved so far.
 
-		let idOfOldSnip = idOfSnipIfAlreadySaved[0];
+		const idOfOldSnip = idOfSnipIfAlreadySaved[0];
 
 		//check if the snipText has changed (don't want to do anything if it hasn't)
 		dbForSnips.get(idOfOldSnip, function (err, doc) {
@@ -124,7 +122,7 @@ saveButton.onclick = function () {
 					idOfSnipIfAlreadySaved.pop();
 
 					saveANewSnip();
-
+					// recall that saveANewSnip() will mutate the global variable! I.e., it will put the id of the snip it saves into the global variable
 				}
 			}
 
