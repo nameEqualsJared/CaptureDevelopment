@@ -401,6 +401,12 @@ function renderSnips() {
 renderSnips();
 
 
+// link up the export button
 document.querySelector(".export-button").onclick = function () {
 	chrome.tabs.create({ url: "export.html" });
+}
+
+//link up the contact button
+document.querySelector(".contact-button").onclick = function () {
+	chrome.tabs.create({ url: "contact.html" });
 }

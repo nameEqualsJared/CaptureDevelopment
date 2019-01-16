@@ -12,7 +12,7 @@ body {
 .bottom-left-sidebar {
 	background-color: var(--main-bg-color);
 	width: 17%;
-	height: 70px;
+	height: 80px;
 	padding-bottom: 5px;
 	position: fixed;
 	bottom: 0;
