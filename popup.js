@@ -92,8 +92,9 @@ function saveANewSnip() {
 }
 
 
+// GLOBAL VARIABLE
 idOfSnipIfAlreadySaved = [];
-//meant to be a global. Will only ever hold one element; the id of the snip if one has been saved on this page.
+//above is meant to be a global. Will only ever hold one element; the id of the snip if one has been saved on this page. This is updated by the saveANewSnip() function and checked in the onclick saveButton event handler below.
 
 saveButton.onclick = function () {
 
@@ -104,7 +105,6 @@ saveButton.onclick = function () {
 
 	} else {
 		//One snip has been saved so far.
-
 		const idOfOldSnip = idOfSnipIfAlreadySaved[0];
 
 		//check if the snipText has changed (don't want to do anything if it hasn't)
