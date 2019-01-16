@@ -1,13 +1,5 @@
 
-const dbForSnips = new PouchDB("dbForSnips");
-const dbForTags = new PouchDB("dbForTags");
-
-
-//This div will house all the rendered snips, regardless of whether it's really all snips in storage or snips with a certain tag 
-let divForRenderedSnips = document.createElement("div");
-divForRenderedSnips.id = "renderedSnips";
-document.querySelector("main").appendChild(divForRenderedSnips);
-
+// ---- a bunch of utility functions used throughout file -----
 
 function renderAllSnips() {
 	//this functions grabs all of the snips out of storage, and renders them into the page
@@ -283,6 +275,31 @@ function renderSnipToHTML(providedDiv, snip) {
 
 }
 
+// ---- end utility functions ----
+
+
+// link up the export button
+document.querySelector(".export-button").onclick = function () {
+	chrome.tabs.create({ url: "export.html" });
+}
+
+//link up the contact button
+document.querySelector(".contact-button").onclick = function () {
+	chrome.tabs.create({ url: "contact.html" });
+}
+
+
+// link up the databases
+const dbForSnips = new PouchDB("dbForSnips");
+const dbForTags = new PouchDB("dbForTags");
+
+
+//This div will house all the rendered snips, regardless of whether it's really all snips in storage or snips with a certain tag 
+let divForRenderedSnips = document.createElement("div");
+divForRenderedSnips.id = "renderedSnips";
+document.querySelector("main").appendChild(divForRenderedSnips);
+
+
 
 function setUpSideTags() {
 	// This function renders all of the tags into the Tags sidebar. It also sets up each toggle button so you can click it and see all the associated snips. It is used frequently to update all the tags in the side bar if the tags in any snip changes.
@@ -374,11 +391,11 @@ setUpSideTags();
 // the renderSnips() function references this array. If it is empty, it will just render all the snips. Otherwise, it will render all the snips in the array.
 snipsToBeRendered = [];
 // snipsToBeRendered either a) contains the ids of all snips to be rendered, or b) contains nothing, indicating that all snips should be rendered 
-// the global is mutated in setUpSideTags(), whenever the user clicks on a tag button (or deselect all)
+// The global is mutated in setUpSideTags(), whenever the user clicks on a tag button (or deselect all)
 
 function renderSnips() {
 	// this function references the snipsToBeRendered global variable to render snips into the page. It is what actually does (or at least kicks off) the rendering.
-	// if the snipsToBERendered array is empty, it will just render all the snips. Otherwise, it will render all the snips in the snipsToBeRendered array.
+	// if the snipsToBeRendered array is empty, it will just render all the snips. Otherwise, it will render all the snips in the snipsToBeRendered array.
 
 	clearChildrenFromDiv(divForRenderedSnips); //clear the page
 
@@ -401,12 +418,3 @@ function renderSnips() {
 renderSnips();
 
 
-// link up the export button
-document.querySelector(".export-button").onclick = function () {
-	chrome.tabs.create({ url: "export.html" });
-}
-
-//link up the contact button
-document.querySelector(".contact-button").onclick = function () {
-	chrome.tabs.create({ url: "contact.html" });
-}
