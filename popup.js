@@ -6,16 +6,16 @@ const openSnipsButton = document.getElementById("openSnipsButton");
 const dbForSnips = new PouchDB("dbForSnips");
 const dbForTags = new PouchDB("dbForTags");
 
-//defining a new object (providing constructor function for it)
-// Snip -- the object used to store a singular snip. 
-function Snip(_id, url, title, snipText, tags) {
-	this._id = _id;  //A string with the date of when the snip was created. Also the unique ID used to save the snip in PouchDB 
-	this.url = url;
-	this.title = title;
-	this.snipText = snipText;
-	this.tags = tags; //an array of all the tags contained in the snipText
+// defining a new object: the Snip. Snips are the objects used to to store note-site combos -- they are also what dbForSnips stores.
+class Snip {
+	constructor(_id, url, title, snipText, tags) {
+		this._id = id; //A string with the date of when the snip was created. Also the unique ID used to save the snip in the DB
+		this.url = url;
+		this.title = title;
+		this.snipText = snipText;
+		this.tags = tags; //an array of all the tags contained in the snupText
+	}
 }
-//maybe refactor out the constructor; I don't really need it, could just use object literal syntax
 
 
 function saveANewSnip() {
