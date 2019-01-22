@@ -101,9 +101,22 @@ function arraySubtract(a, b) {
 	return res;
 }
 
+
+function updateSnipText(snip, newSnipText) {
+	/*
+		snip -- a full snip object, required to have the _id, snipText, and tags fields. 
+
+		This function properly updates the tags and snipText of a snip, given a newSnipText. That is, it keeps both the databases up to date, in that it:
+		1) Handles the addition or deletion of any tags in the newSnipText, properly updating dbForTags
+		2) updates the snip itself by updating the tag and snipText fields, and saving the snip back in dbForSnips
+	*/
+
+
+}
+
 function renderSnipToHTML(providedDiv, snip) {
 
-	/* This function renders the provided snip (required to have url, title, snipText, _id, and _rev members) to the page. Specifically, it renders it "into" the provided HTML element (should be a div). */
+	/* This function renders the provided snip (required to have url, title, favIconUrl, snipText, _id, and _rev members) to the page. Specifically, it renders it "into" the provided HTML element (should be a div). */
 
 	//Each snip is in its own div 
 	const d = document.createElement('div');

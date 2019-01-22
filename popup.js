@@ -43,12 +43,13 @@ function saveANewSnip() {
 				//simply add the tags to the array, with the hashtags removed
 			}
 		}
+		let uniqueTags = [...new Set(tags)]; // we only want to store the unique tags -- don't care about duplicates.
 
 		//_id holds the date of when this snip was created in a string. Also acts as the unique id to get the snip from the db
 		const _id = new Date().toLocaleString();
 
 		//Constructing the new snip.
-		currentSnip = new Snip(_id, currentURL, currentFavIconUrl, currentTitle, snipText, tags);
+		currentSnip = new Snip(_id, currentURL, currentFavIconUrl, currentTitle, snipText, uniqueTags);
 
 		//saving this snip to all of its tags in dbForTags
 		for (let tag of currentSnip.tags) {
