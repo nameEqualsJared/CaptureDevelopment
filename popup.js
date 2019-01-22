@@ -28,7 +28,7 @@ function saveANewSnip() {
 	//get the current page title and address
 	chrome.tabs.query({ active: true, currentWindow: true }, async function (tabs) {
 		// Note: I cannot use a more modern async JS technique above, as all chrome extension APIs only currently support the traditional callback technique.
-		// Note that the callback function must also be declared async, as we use await below
+		// Note that the callback function above must be declared async, as we use await below
 
 		const currentURL = tabs[0].url;
 		const currentTitle = tabs[0].title;
@@ -45,7 +45,7 @@ function saveANewSnip() {
 		}
 
 		//_id holds the date of when this snip was created in a string. Also acts as the unique id to get the snip from the db
-		const _id = new Date().toISOString();
+		const _id = new Date().toLocaleString();
 
 		//Constructing the new snip.
 		currentSnip = new Snip(_id, currentURL, currentFavIconUrl, currentTitle, snipText, tags);
@@ -86,41 +86,38 @@ function saveANewSnip() {
 idOfSnipIfAlreadySaved = [];
 //above is meant to be a global. Will only ever hold one element; the id of the snip if one has been saved on this page. This is updated by the saveANewSnip() function and checked in the onclick saveButton event handler below.
 
-saveButton.onclick = function () {
+saveButton.onclick = async function () {
 
 	if (idOfSnipIfAlreadySaved.length === 0) {
 		//no snips have been saved yet. (ie, this is the first time the save button has been pushed) 
-
 		saveANewSnip();
 
 	} else {
 		//One snip has been saved so far.
 		const idOfOldSnip = idOfSnipIfAlreadySaved[0];
 
-		//check if the snipText has changed (don't want to do anything if it hasn't)
-		dbForSnips.get(idOfOldSnip, function (err, doc) {
-			if (err) {
-				console.log(err);
-			} else {
-				if (doc.snipText !== document.getElementById("inputText").value) {
-					//the snipText has changed.
+		try {
+			let doc = await dbForSnips.get(idOfOldSnip);
 
-					//delete the old snip 
-					deleteSnip(doc);
+			//check if the snipText has changed (don't want to do anything if it hasn't)
+			if (doc.snipText !== document.getElementById("inputText").value) {
+				//the snipText has changed.
 
-					//clear this out; we'll be saving a new snip.
-					idOfSnipIfAlreadySaved.pop();
+				//delete the old snip 
+				deleteSnip(doc);
 
-					saveANewSnip();
-					// recall that saveANewSnip() will mutate the global variable! I.e., it will put the id of the snip it saves into the global variable
-				}
+				//clear this out; we'll be saving a new snip.
+				idOfSnipIfAlreadySaved.pop();
+
+				saveANewSnip();
+				// recall that saveANewSnip() will mutate the global variable! I.e., it will put the id of the snip it saves into the global variable
 			}
+		} catch (err) {
+			console.log(err)
+		}
 
-		});
 	}
-
-
-};
+}
 
 
 openSnipsButton.onclick = function () {
