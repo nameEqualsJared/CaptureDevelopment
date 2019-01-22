@@ -1,6 +1,35 @@
 
 // ---- a bunch of utility functions used throughout file -----
 
+function a() {
+	dbForSnips.destroy();
+}
+
+function b() {
+	dbForTags.destroy();
+}
+
+function c() {
+	dbForSnips.allDocs({ include_docs: true, descending: true }, function (err, doc) {
+		if (err) {
+			console.log(err);
+		} else {
+			console.log(doc.rows[0].doc);
+		}
+	});
+}
+
+function d() {
+	dbForTags.allDocs({ include_docs: true, descending: true }, function (err, doc) {
+		if (err) {
+			console.log(err);
+		} else {
+			console.log(doc.rows);
+		}
+	});
+}
+
+
 function renderAllSnips() {
 	//this functions grabs all of the snips out of storage, and renders them into the page
 	dbForSnips.allDocs({ include_docs: true, descending: true }, function (err, doc) {
@@ -46,28 +75,30 @@ function arraysEqual(a, b) {
 }
 
 function arrayUnion(a, b) {
-	// adds the contents of array b to array a. Note: this DOES mutate a.
-	// also will not leave duplicates in a
+	// adds the contents of array b to array a, returning a new array
+	// Ignores dupliates
 
-	// for each elem of b...
+	let res = a.slice(); // make a copy of a, put it in res
 	for (let elem of b) {
 		if (a.indexOf(elem) === -1) {
-			// add it to a if it is not in a
-			a.push(elem);
+			// add it to res if it is not in a
+			res.push(elem);
 		}
 	}
+	return res;
 }
 
 function arraySubtract(a, b) {
-	// subtracts the contents of array b from a. Note: this DOES mutate a
+	// subtracts the contents of array b from a, returning a new array
 
-	// for each element of a copy of a (since we are mutating it in the loop we must copy it)...
-	for (let elem of a.slice()) {
-		if (b.indexOf(elem) !== -1) {
-			// remove it from a if it is b
-			a.splice(a.indexOf(elem), 1);
+	let res = [];
+	for (let elem of a) {
+		if (b.indexOf(elem) === -1) {
+			// add it to the result only if the elem is not in b
+			res.push(elem);
 		}
 	}
+	return res;
 }
 
 function renderSnipToHTML(providedDiv, snip) {
