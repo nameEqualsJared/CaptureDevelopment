@@ -8,9 +8,10 @@ const dbForTags = new PouchDB("dbForTags");
 
 // defining a new object: the Snip. Snips are the objects used to to store note-site combos -- they are also what dbForSnips stores.
 class Snip {
-	constructor(_id, url, title, snipText, tags) {
-		this._id = id; //A string with the date of when the snip was created. Also the unique ID used to save the snip in the DB
+	constructor(_id, url, favIconUrl, title, snipText, tags) {
+		this._id = _id; //A string with the date of when the snip was created. Also the unique ID used to save the snip in the DB
 		this.url = url;
+		this.favIconUrl = favIconUrl;
 		this.title = title;
 		this.snipText = snipText;
 		this.tags = tags; //an array of all the tags contained in the snupText
@@ -21,13 +22,18 @@ class Snip {
 function saveANewSnip() {
 	//NOTE: this function modified a global variable! Specifically, it will put the id of the snip that it saves in the "idOfSnipIfAlreadySaved" global!
 
+	//get the current snip text given by the user
+	const snipText = document.getElementById("inputText").value;
 
 	//get the current page title and address
-	chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+	chrome.tabs.query({ active: true, currentWindow: true }, async function (tabs) {
+		// Note: I cannot use a more modern async JS technique above, as all chrome extension APIs only currently support the traditional callback technique.
+		// Note that the callback function must also be declared async, as we use await below
+
 		const currentURL = tabs[0].url;
 		const currentTitle = tabs[0].title;
+		const currentFavIconUrl = tabs[0].favIconUrl;
 
-		//"tags" will hold all the tags in the snipText (without hashtags)
 		let tags = [];
 		const tagArrayWithHashtags = snipText.match(/(#[1-9a-zA-z-]+)/g);
 		if (tagArrayWithHashtags) {
@@ -38,56 +44,40 @@ function saveANewSnip() {
 			}
 		}
 
-		//_id holds the date of when this snip was created in a string 
+		//_id holds the date of when this snip was created in a string. Also acts as the unique id to get the snip from the db
 		const _id = new Date().toISOString();
 
 		//Constructing the new snip.
-		currentSnip = new Snip(_id, currentURL, currentTitle, snipText, tags);
-
+		currentSnip = new Snip(_id, currentURL, currentFavIconUrl, currentTitle, snipText, tags);
 
 		//saving this snip to all of its tags in dbForTags
 		for (let tag of currentSnip.tags) {
-			dbForTags.get(tag, function (err, doc) {
-				if (err) {
-					if (err.message === "missing") {
-						//this error means the document doesn't exist. 
-						//thus, we create it
-						dbForTags.put({ _id: tag, snipsWithThisTag: [currentSnip._id] });
+			try {
+				const doc = await dbForTags.get(tag);
+				// if we reach here, an entry for this tag already exists in dbForTags
+				//thus, we get the snipsWithThisTag array out, add on the current snip, and save it back 
+				let snipsWithThisTag = doc.snipsWithThisTag;
+				snipsWithThisTag.push(currentSnip._id);
+				dbForTags.put(doc).catch(err => console.log(err));
 
-					} else {
-						//otherwise, just log the error 
-						console.log(err)
-					}
-
+			} catch (err) {
+				if (err.message === "missing") {
+					//this error means an entry for this tag doesn't exist in dbForTags (i.e., the tag is new) 
+					//thus, we create it
+					dbForTags.put({ _id: tag, snipsWithThisTag: [currentSnip._id] }).catch(err => console.log(err));
 				} else {
-					// if we reach here, the document exists
-					//thus, we get the snipsWithThisTag array out, add on the current snip, and save it back 
-					let snipsWithThisTag = doc.snipsWithThisTag;
-					snipsWithThisTag.push(currentSnip._id);
-					dbForTags.put(doc);
+					console.log(err);
 				}
-
-			});
+			}
 		}
 
 		//saving the Snip in the dbForSnips
-		dbForSnips.put(currentSnip, function callback(err, result) {
-			if (err) {
-				console.log(err);
-			}
-		});
+		dbForSnips.put(currentSnip).catch(err => console.log(err));
 
 		//push the _id of the currently saved snip into the global
 		idOfSnipIfAlreadySaved.push(_id);
 
 	});
-
-	//get the current snip text given by the user
-	const snipText = document.getElementById("inputText").value;
-
-	//Remember that we execute ALL the sync stuff first, and then the async stuff!
-	//Thus, the order of execution here is "26" (the function is kicked off but remember it is async!), then 86 (so getting the snipText), then all the stuff inside 26 when it finishes and "calls us back" :) (at which point the snipText will be available!!! That's the key to realize: really the order of execution is more like 86 then when the function calls us back :))
-
 
 }
 
