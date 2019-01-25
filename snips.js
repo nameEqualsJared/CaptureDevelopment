@@ -116,13 +116,11 @@ function renderSnipToHTML(providedDiv, snip) {
 	const p1 = document.createElement('p');
 	p1.className = "snip-title";
 	const s1 = document.createElement('span');
-	const s1text = document.createTextNode("Title: ");
-	s1.appendChild(s1text);
+	s1.textContent = "Title: ";
 	p1.append(s1);
 	const a = document.createElement("a");
 	a.href = snip.url;
-	const atext = document.createTextNode(snip.title)
-	a.appendChild(atext);
+	a.textContent = snip.title;
 	p1.appendChild(a)
 	d.appendChild(p1);
 
@@ -130,8 +128,7 @@ function renderSnipToHTML(providedDiv, snip) {
 	const ta = document.createElement('textarea');
 	ta.rows = 20;
 	ta.cols = 80;
-	const tatext = document.createTextNode(snip.snipText);
-	ta.appendChild(tatext);
+	ta.value = snip.snipText;
 	ta.onblur = async function () {
 		try {
 			let snipToUpdate = await dbForSnips.get(snip._id)
@@ -140,20 +137,17 @@ function renderSnipToHTML(providedDiv, snip) {
 			console.log(err);
 		}
 	}
-
 	d.appendChild(ta);
 
-	//adding the date snipped a delete button
+	//adding the date snipped 
 	const d2 = document.createElement("div");
 	d2.className = "flexbox-container";
 	const p = document.createElement("p");
 	p.className = "snipped-on";
-	const split = snip._id.slice(0, 10).split("-");
-	const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-	const ptext = document.createTextNode("Snipped on " + months[split[1] - 1] + " " + split[2] + ", " + split[0]);
-	p.appendChild(ptext);
+	p.textContent = "Snipped on " + snip._id;
 	d2.appendChild(p);
 
+	//adding a delete button
 	const b = document.createElement('button');
 	const btext = document.createTextNode("Delete");
 	b.appendChild(btext);
