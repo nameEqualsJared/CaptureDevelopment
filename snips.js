@@ -1,6 +1,11 @@
 
 // ---- a bunch of utility functions used throughout file -----
 
+function z() {
+	a();
+	b();
+}
+
 function a() {
 	dbForSnips.destroy();
 }
@@ -14,7 +19,7 @@ function c() {
 		if (err) {
 			console.log(err);
 		} else {
-			console.log(doc.rows[0].doc);
+			console.log(doc.rows);
 		}
 	});
 }
@@ -30,21 +35,17 @@ function d() {
 }
 
 
-function renderAllSnips() {
+async function renderAllSnips() {
 	//this functions grabs all of the snips out of storage, and renders them into the page
-	dbForSnips.allDocs({ include_docs: true, descending: true }, function (err, doc) {
-		if (err) {
-			console.log(err);
-		} else {
-
-
-			for (let entry of doc.rows) {
-				const snip = entry.doc;
-
-				renderSnipToHTML(divForRenderedSnips, snip);
-			}
+	try {
+		const doc = await dbForSnips.allDocs({ include_docs: true, descending: true });
+		for (let entry of doc.rows) {
+			const snip = entry.doc;
+			renderSnipToHTML(divForRenderedSnips, snip);
 		}
-	});
+	} catch (err) {
+		console.log(err);
+	}
 }
 
 function clearChildrenFromDiv(div) {
@@ -102,17 +103,6 @@ function arraySubtract(a, b) {
 }
 
 
-function updateSnipText(snip, newSnipText) {
-	/*
-		snip -- a full snip object, required to have the _id, snipText, and tags fields. 
-
-		This function properly updates the tags and snipText of a snip, given a newSnipText. That is, it keeps both the databases up to date, in that it:
-		1) Handles the addition or deletion of any tags in the newSnipText, properly updating dbForTags
-		2) updates the snip itself by updating the tag and snipText fields, and saving the snip back in dbForSnips
-	*/
-
-
-}
 
 function renderSnipToHTML(providedDiv, snip) {
 
@@ -142,143 +132,13 @@ function renderSnipToHTML(providedDiv, snip) {
 	ta.cols = 80;
 	const tatext = document.createTextNode(snip.snipText);
 	ta.appendChild(tatext);
-	ta.addEventListener("input", function () {
-		//Code for just saving plain snip text (does not deal with tags)
-
-		//as it is, this saves the snip anew everytime there is any change in the textarea.
-		//In the future may want to use .onblur to prevent so many saves...
-		//But for now, why not :P. It's convenient 
-		dbForSnips.get(snip._id, function (err, doc) {
-			if (err) {
-				console.log(err);
-			} else {
-				doc.snipText = ta.value;
-				dbForSnips.put(doc);
-			}
-		});
-	});
-
-	ta.onblur = function () {
-		//Code for updating tags
-		//NOTE: currently we only check for tags on an onblur basis (so when the textarea loses focus. Note that reloading the page does not count as losing focus). 
-		//NOTE: the oninput event handler above handles general snipText saving 
-
-
-		//"currentTagsInTA" will hold all the tags in the text area (TA) currently 
-		let tagArrayWithHashtags = ta.value.match(/(#[1-9a-zA-z-]+)/g);
-		let currentTagsInTA = [];
-		if (tagArrayWithHashtags) {
-			//if the tagArrayWithHashtags exists (not null)
-			for (let tag of tagArrayWithHashtags) {
-				currentTagsInTA.push(tag.slice(1));
-				//simply add the tags to the array, with the hashtags removed
-			}
+	ta.onblur = async function () {
+		try {
+			let snipToUpdate = await dbForSnips.get(snip._id)
+			updateSnipText(snipToUpdate, ta.value);
+		} catch (err) {
+			console.log(err);
 		}
-
-
-		dbForSnips.get(snip._id, function (err, doc) {
-			if (err) {
-				console.log(err);
-			} else {
-
-				const oldTagsInSnip = doc.tags;
-
-				//maybe in the future don't even check if the arrays are different? Idk. It's a lot of computational work (you have to sort em); see the arraysEquals function. Could always just update the db's regardless....May be faster. idk
-				if (!arraysEqual(currentTagsInTA, oldTagsInSnip)) {
-
-					//get the snip with this _id out of storage. We are going to update it (see end of the this block) (if you're going to update something, you have to get it out of storage to get the _rev field. Then you just put the whole object back with your updates)
-					dbForSnips.get(snip._id, function (err, doc) {
-						if (err) {
-							console.log(err);
-						} else {
-
-							const snip = doc;
-
-							//put all the new tags in the snip. Ie, only the tags currently in the text area are the ones that should be in the snip
-							snip.tags = currentTagsInTA;
-
-							//for each of the new tags in the snip, make sure the dbForTags has this snip's _id for each tag 
-							for (let tag of snip.tags) {
-								dbForTags.get(tag, function (err, doc) {
-									if (err) {
-										if (err.message === "missing") {
-											//this error means that the tag doesn't have an entry in dbForTags. Thus, add it
-											dbForTags.put({ _id: tag, snipsWithThisTag: [snip._id] });
-
-										} else {
-											//otherwise, just log the error
-											console.log(err)
-										}
-
-									} else {
-										// if we reach here, the tag exists in dbForTags.
-
-										//check if this tag in the DB already has this snip's id		
-										if (doc.snipsWithThisTag.indexOf(snip._id) === -1) {
-											//If we reach here, it doesn't. So add
-
-											doc.snipsWithThisTag.push(snip._id);
-											dbForTags.put(doc);
-										}
-									}
-
-									//update the tags in the sidebar. Could later remove if performance becomes an issue, as a simple reload will update the tags in the sidebar, but this makes it feel a bit more responsive.
-									setUpSideTags();
-
-								});
-
-							}
-
-
-							//also, for each tag in the oldTagsInSnip array: make sure to remove this snip's id from the dbForTags if the tag is no longer in the snip.
-							for (let tag of oldTagsInSnip) {
-
-								if (snip.tags.indexOf(tag) === -1) {
-									//in other words, if the tag was removed (if it's no longer a current tag)
-
-									//remove it from the db
-									dbForTags.get(tag, function (err, doc) {
-										if (err) {
-											console.log(err);
-										} else {
-
-											let snipsWithThisTag = doc.snipsWithThisTag;
-
-											let index = snipsWithThisTag.indexOf(snip._id);
-											if (index > -1) {
-												//this means the snip's _id did exist. so remove it
-												snipsWithThisTag.splice(index);
-											}
-
-											if (snipsWithThisTag.length === 0) {
-												//no more snips exist with this tag. So just delete the whole entry in dbForTags.
-
-												dbForTags.remove(doc);
-											} else {
-												//otherwise update the entry
-												dbForTags.put(doc);
-											}
-
-										}
-
-										//update the tags in the sidebar. Could later remove if performance becomes an issue, as a simple reload will update the tags in the sidebar, but this makes it feel a bit more responsive.
-										setUpSideTags();
-
-									});
-								}
-							}
-
-							//update the snip in dbForSnips (because the tags have changed)
-							dbForSnips.put(snip)
-
-						}
-					});
-
-				}
-			}
-
-		});
-
 	}
 
 	d.appendChild(ta);
