@@ -23,7 +23,7 @@ async function renderAll() {
             renderParagraph("Link: " + snip.url);
             renderParagraph("Snip Text: " + snip.snipText);
             renderParagraph("Tags: " + snip.tags);
-            renderParagraph("Date: " + snip._id.slice(0, 10));
+            renderParagraph("Date: " + snip._id);
             divForRenderedSnips.appendChild(document.createElement("br"));
         }
     } catch (err) {

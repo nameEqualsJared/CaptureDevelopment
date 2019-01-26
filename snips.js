@@ -1,39 +1,6 @@
 
 // -- Begin utility functions --
 
-function z() {
-    a();
-    b();
-}
-
-function a() {
-    dbForSnips.destroy();
-}
-
-function b() {
-    dbForTags.destroy();
-}
-
-function c() {
-    dbForSnips.allDocs({ include_docs: true, descending: true }, function (err, doc) {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log(doc.rows);
-        }
-    });
-}
-
-function d() {
-    dbForTags.allDocs({ include_docs: true, descending: true }, function (err, doc) {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log(doc.rows);
-        }
-    });
-}
-
 function clearChildrenFromDiv(div) {
 
     while (div.firstChild) {
@@ -86,14 +53,12 @@ document.querySelector(".contact-button").onclick = function () {
     chrome.tabs.create({ url: "contact.html" });
 }
 
-
 // link up the databases
 const dbForSnips = new PouchDB("dbForSnips");
 const dbForTags = new PouchDB("dbForTags");
 
 // set the constant "RENDER_LOC": the div any snips will be populated in
 const RENDER_LOC = document.getElementById("renderedSnips");
-
 
 class MainUI {
     /*
@@ -175,9 +140,10 @@ class MainUI {
         ta.rows = 20;
         ta.cols = 80;
         ta.value = snip.snipText;
-        ta.onblur = async function () {
+        ta.onchange = async function () {
             try {
                 let snipToUpdate = await dbForSnips.get(snip._id);
+                console.log("in");
                 updateSnipText(snipToUpdate, ta.value);
             } catch (err) {
                 console.log(err);
@@ -332,7 +298,6 @@ class TagUI {
     }
 
 }
-
 
 let mainUI = new MainUI();
 let tagUI = new TagUI(mainUI);
