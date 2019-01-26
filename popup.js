@@ -35,7 +35,7 @@ function saveANewSnip() {
 		const currentFavIconUrl = tabs[0].favIconUrl;
 
 		let tags = [];
-		const tagArrayWithHashtags = snipText.match(/(#[1-9a-zA-z-]+)/g);
+		const tagArrayWithHashtags = snipText.match(/(#[0-9a-zA-z-]+)/g); //this re just matches all the tags in the sniptext (including hashtags)
 		if (tagArrayWithHashtags) {
 			//if the tagArrayWithHashtags exists (not null)
 			for (let tag of tagArrayWithHashtags) {
@@ -85,7 +85,7 @@ function saveANewSnip() {
 
 // GLOBAL VARIABLE (regrettably)
 idOfSnipIfAlreadySaved = [];
-//above is meant to be a global. Will only ever hold one element; the id of the snip if one has been saved on this page. This is updated by the saveANewSnip() function and checked in the onclick saveButton event handler below. I use it to solve the problem of "the user may click save multiple times, but only one snip should be saved per page."
+//above is meant to be a global. Will only ever hold one element; the id of the snip if one has been saved on this page. This is updated by the saveANewSnip() function and checked in the onclick saveButton event handler below -- these are the only two places the global is used. I use it to solve the problem of "the user may click save multiple times, but only one snip should be saved per page."
 
 saveButton.onclick = async function () {
 

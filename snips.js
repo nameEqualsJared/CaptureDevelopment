@@ -49,6 +49,71 @@ function formatDate(snipID) {
 }
 
 
+async function saveANewSnip(snip) {
+    // utility function for stress testing
+    // obj should be a full snip
+
+    //saving this snip to all of its tags in dbForTags
+    for (let tag of snip.tags) {
+        try {
+            const doc = await dbForTags.get(tag);
+            // if we reach here, an entry for this tag already exists in dbForTags
+            //thus, we get the snipsWithThisTag array out, add on the current snip, and save it back 
+            let snipsWithThisTag = doc.snipsWithThisTag;
+            snipsWithThisTag.push(snip._id);
+            dbForTags.put(doc).catch(err => console.log(err));
+
+        } catch (err) {
+            if (err.message === "missing") {
+                //this error means an entry for this tag doesn't exist in dbForTags (i.e., the tag is new) 
+                //thus, we create it
+                await dbForTags.put({ _id: tag, snipsWithThisTag: [snip._id] }).catch(err => console.log(err));
+            } else {
+                console.log(err);
+            }
+        }
+    }
+
+    //saving the Snip in the dbForSnips
+    dbForSnips.put(snip).catch(err => console.log(err));
+
+}
+
+
+function z() {
+    a();
+    b();
+}
+
+function a() {
+    dbForSnips.destroy();
+}
+
+function b() {
+    dbForTags.destroy();
+}
+
+function c() {
+    dbForSnips.allDocs({ include_docs: true, descending: true }, function (err, doc) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(doc.rows);
+        }
+    });
+}
+
+function d() {
+    dbForTags.allDocs({ include_docs: true, descending: true }, function (err, doc) {
+        if (err) {
+            console.log(err);
+        } else {
+            console.log(doc.rows);
+        }
+    });
+}
+
+
 // -- End utility functions --
 
 // link up the export button
@@ -160,7 +225,9 @@ class MainUI {
             try {
                 let snipToUpdate = await dbForSnips.get(snip._id);
                 await updateSnipText(snipToUpdate, ta.value); // update the snip with the new text (properly updates both DBs).
+
                 this.TagUI.renderSideTags(); // update the tags on the left.
+
             } catch (err) {
                 console.log(err);
             }
@@ -172,7 +239,7 @@ class MainUI {
         d2.className = "flexbox-container";
         const p = document.createElement("p");
         p.className = "snipped-on";
-        p.textContent = "Snipped on " + formatDate(snip._id);
+        p.textContent = "Snipped on " + snip._id; //+ formatDate(snip._id);
         d2.appendChild(p);
 
         //adding a delete button
@@ -288,7 +355,7 @@ class TagUI {
 
 
 
-    // would also ideally be private
+    // would ideally be private
     linkSideTags() {
         // This function makes it so if the user clicks any side tag, the mainUI will update
 
@@ -332,7 +399,7 @@ class TagUI {
 let mainUI = new MainUI();
 let tagUI = new TagUI();
 
-// link the two UI's together (regretably). This is done so that changing the snipText will update the tags on the left; and so that clicking on tags on the left will update the snips shown in the MainUI.
+// link the two UI's together (regretably). This is done so that changing the snipText will update the tags on the left; deleting a snip will update the tags on the left; and so that clicking on tags on the left will update the snips shown in the MainUI.
 mainUI.setTagUiRef(tagUI);
 tagUI.setMainUiRef(mainUI);
 

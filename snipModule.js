@@ -18,7 +18,7 @@ async function deleteSnip(snip) {
 			//remove the id from the snipsWithThisTag array (cause we are deleting the snip)
 			let index = snipsWithThisTag.indexOf(snip._id);
 			if (index > -1) {
-				snipsWithThisTag.splice(index);
+				snipsWithThisTag.splice(index, 1);
 			}
 
 			if (snipsWithThisTag.length === 0) {
@@ -54,7 +54,7 @@ async function updateSnipText(snip, newSnipText) {
 	// ------ Step 1: update the dbForTags --------
 
 	// retrieve all the unique tags from the newSnipText (remove duplicates)
-	let tagArrayWithHashtags = newSnipText.match(/(#[1-9a-zA-z-]+)/g);
+	let tagArrayWithHashtags = newSnipText.match(/(#[0-9a-zA-z-]+)/g);
 	let newTagsWDups = [];
 	if (tagArrayWithHashtags) {
 		//if the tagArrayWithHashtags exists (not null)
@@ -78,7 +78,7 @@ async function updateSnipText(snip, newSnipText) {
 				// Thus, we remove this snip's id from that tag's entry in dbForTags
 				try {
 					let doc = await dbForTags.get(tag);
-					doc.snipsWithThisTag.splice(doc.snipsWithThisTag.indexOf(snip._id));
+					doc.snipsWithThisTag.splice(doc.snipsWithThisTag.indexOf(snip._id), 1);
 					if (doc.snipsWithThisTag.length === 0) {
 						// no more snips with this tag (i.e., this was the last one)
 						// thus, just delete the whole entry in dbForTags
