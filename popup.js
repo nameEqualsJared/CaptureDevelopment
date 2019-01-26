@@ -89,6 +89,8 @@ idOfSnipIfAlreadySaved = [];
 
 saveButton.onclick = async function () {
 
+	let counter = 0;
+
 	if (idOfSnipIfAlreadySaved.length === 0) {
 		//no snips have been saved yet. (ie, this is the first time the save button has been pushed) 
 		saveANewSnip();
@@ -118,6 +120,10 @@ saveButton.onclick = async function () {
 		}
 
 	}
+
+	counter++;
+	console.log(counter);
+
 }
 
 

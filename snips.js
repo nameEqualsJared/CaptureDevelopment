@@ -41,6 +41,14 @@ function arraySubtract(a, b) {
     return res;
 }
 
+function formatDate(snipID) {
+    // given a snipID (which is the date the snip was taked on), this function returns a nicer looking date as a string
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "November", "December"]
+    const date = new Date(snipID);
+    return `${months[date.getMonth()]} ${date.getDay()} ${date.getFullYear()}, ${date.toLocaleTimeString()}`;
+}
+
+
 // -- End utility functions --
 
 // link up the export button
@@ -143,7 +151,6 @@ class MainUI {
         ta.onchange = async function () {
             try {
                 let snipToUpdate = await dbForSnips.get(snip._id);
-                console.log("in");
                 updateSnipText(snipToUpdate, ta.value);
             } catch (err) {
                 console.log(err);
@@ -156,7 +163,7 @@ class MainUI {
         d2.className = "flexbox-container";
         const p = document.createElement("p");
         p.className = "snipped-on";
-        p.textContent = "Snipped on " + snip._id;
+        p.textContent = "Snipped on " + formatDate(snip._id);
         d2.appendChild(p);
 
         //adding a delete button
