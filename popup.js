@@ -83,13 +83,11 @@ function saveANewSnip() {
 }
 
 
-// GLOBAL VARIABLE
+// GLOBAL VARIABLE (regrettably)
 idOfSnipIfAlreadySaved = [];
-//above is meant to be a global. Will only ever hold one element; the id of the snip if one has been saved on this page. This is updated by the saveANewSnip() function and checked in the onclick saveButton event handler below.
+//above is meant to be a global. Will only ever hold one element; the id of the snip if one has been saved on this page. This is updated by the saveANewSnip() function and checked in the onclick saveButton event handler below. I use it to solve the problem of "the user may click save multiple times, but only one snip should be saved per page."
 
 saveButton.onclick = async function () {
-
-	let counter = 0;
 
 	if (idOfSnipIfAlreadySaved.length === 0) {
 		//no snips have been saved yet. (ie, this is the first time the save button has been pushed) 
@@ -120,9 +118,6 @@ saveButton.onclick = async function () {
 		}
 
 	}
-
-	counter++;
-	console.log(counter);
 
 }
 

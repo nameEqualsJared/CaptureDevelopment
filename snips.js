@@ -72,12 +72,16 @@ class MainUI {
     /*
     This class models the main UI of the page -- the scrollable snip feed.
 
-    It contains one field:
-        .snipsRendered: an array of of all ID's of the the snips in the Main UI.
-        
-        NOTE: if this array is empty, that is interpreted as "render all snips". Otherwise, it will just render the snips in the array.
+    It contains two fields:
+        .snipsRendered: an array of of all ID's of the the snips in the Main UI. 
+            This is set in the constructor.
+            NOTE: if this array is empty, that is interpreted as "render all snips". Otherwise, it will just render the snips in the array.
+        .TagUI: a reference to a TagUI object.
+            This is set in the setTagUiRef method. It needs to be set for the class to function properly.
+            Whilst I certainly wish I didn't have to couple these classes together, I think it is "needed". The reason is that if the user changes a snip in the MainUI, I want the TagUI to automatically update -- thus I need a reference to the TagUI to do this updating. 
+            The field is used in the renderSnipToHTML method, to ensure that changing the snipText (and thus perhaps updating the tags) updates the tags on the left. Further, it is also used to update the tags on the left if a snip is deleted.
 
-    It has both a setter and getter for this field. Setting the field will update the UI.
+    It has both a setter and getter for .snipsRendered. Setting the field will update the UI.
 
     It also contains two (ideally private) helper methods: renderSnipToHTML and renderAllSnips.
 
@@ -86,6 +90,10 @@ class MainUI {
 
     constructor(snipsRendered = []) {
         this.setSnipsRendered(snipsRendered); // an array of all the ID's of snips to be rendered (if empty will render all).
+    }
+
+    setTagUiRef(TagUiRef) {
+        this.TagUI = TagUiRef;
     }
 
     async setSnipsRendered(snipsRendered) {
@@ -148,10 +156,11 @@ class MainUI {
         ta.rows = 20;
         ta.cols = 80;
         ta.value = snip.snipText;
-        ta.onchange = async function () {
+        ta.onchange = async () => {
             try {
                 let snipToUpdate = await dbForSnips.get(snip._id);
-                updateSnipText(snipToUpdate, ta.value);
+                await updateSnipText(snipToUpdate, ta.value); // update the snip with the new text (properly updates both DBs).
+                this.TagUI.renderSideTags(); // update the tags on the left.
             } catch (err) {
                 console.log(err);
             }
@@ -170,14 +179,17 @@ class MainUI {
         const b = document.createElement('button');
         const btext = document.createTextNode("Delete");
         b.appendChild(btext);
-        b.onclick = function () {
+        b.onclick = async () => {
             const toDelete = confirm("Are you sure you want to delete this snip? This action cannot be undone!");
             if (toDelete) {
                 //delete the snips from the DBs
-                deleteSnip(snip);
+                await deleteSnip(snip);
 
                 //remove the snip from the page
                 b.parentNode.parentNode.parentNode.removeChild(b.parentNode.parentNode);
+
+                //update the tags on the left
+                this.TagUI.renderSideTags();
             }
         }
         d2.appendChild(b);
@@ -212,19 +224,29 @@ class TagUI {
     /*
     This class models the TagUI on the left.
     It contains one field:
-        .mainUI -- a reference to the MainUI, passed in the constructor. The class needs a reference to this because, as the user interacts with the tag sidebar, it changes what is rendered in the MainUI.
+        .MainUI: a reference to a MainUI object.
+            This is set in the setMainUiRef method. It needs to be set for the class to function properly.
+            Again, whilst I wish I didn't have to in a sense couple the TagUI and MainUI classes together, I believe this is "needed". The reason is that, if the user clicks on a set of tags on the left, the MainUI needs to update.
+            This field is used in the linkSideTags() method, to update the MainUI if the user clicks on a tag.
     
     It's constructor will set up the tags on the left, such that clicking on them will appropirately change the snips in the mainUI.
-
     */
 
-    constructor(mainUI) {
-        this.mainUI = mainUI;
+    constructor() {
         this.renderSideTags();
     }
 
-    // would ideally be private
+    setMainUiRef(MainUiRef) {
+        this.MainUI = MainUiRef;
+    }
+
+
+    // meant to be public
     async renderSideTags() {
+
+        const sideTagsDiv = document.querySelector(".tag-sidebar-buttons");
+
+        clearChildrenFromDiv(sideTagsDiv);
 
         //Set up the deselect all button
         const deselectButton = document.querySelector(".deselect");
@@ -238,8 +260,6 @@ class TagUI {
 
             mainUI.setSnipsRendered([]); //update the main UI
         }
-
-        const sideTagsDiv = document.querySelector(".tag-sidebar-buttons");
 
         // set up all the tag buttons
         try {
@@ -266,13 +286,15 @@ class TagUI {
 
     }
 
+
+
     // would also ideally be private
     linkSideTags() {
         // This function makes it so if the user clicks any side tag, the mainUI will update
 
         const buttons = document.querySelectorAll(".tag-sidebar-buttons button");
         for (let btn of buttons) {
-            btn.onclick = async function () {
+            btn.onclick = async () => {
                 // following makes the button toggle-able
                 if (btn.toggledOn) {
                     btn.toggledOn = false;
@@ -287,14 +309,14 @@ class TagUI {
                     let doc = await dbForTags.get(btn.textContent);
                     if (btn.toggledOn) {
                         // if the btn has been toggled on, 
-                        const snipsToRender = arrayUnion(mainUI.getSnipsRendered(), doc.snipsWithThisTag);
+                        const snipsToRender = arrayUnion(this.MainUI.getSnipsRendered(), doc.snipsWithThisTag);
 
                         mainUI.setSnipsRendered(snipsToRender)
                     } else {
                         // otherwise (so the button has been turned off), we will subtract the ids of all snips with this tag
-                        const snipsToRender = arraySubtract(mainUI.getSnipsRendered(), doc.snipsWithThisTag);
+                        const snipsToRender = arraySubtract(this.MainUI.getSnipsRendered(), doc.snipsWithThisTag);
 
-                        mainUI.setSnipsRendered(snipsToRender)
+                        this.MainUI.setSnipsRendered(snipsToRender)
                     }
 
                 } catch (err) {
@@ -306,6 +328,11 @@ class TagUI {
 
 }
 
+
 let mainUI = new MainUI();
-let tagUI = new TagUI(mainUI);
+let tagUI = new TagUI();
+
+// link the two UI's together (regretably). This is done so that changing the snipText will update the tags on the left; and so that clicking on tags on the left will update the snips shown in the MainUI.
+mainUI.setTagUiRef(tagUI);
+tagUI.setMainUiRef(mainUI);
 
