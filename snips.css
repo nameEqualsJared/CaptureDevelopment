@@ -119,6 +119,16 @@ main {
 	border: 1px solid rgb(170, 170, 170);
 }
 
+.title-container {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
+
+.title-container img {
+	margin-right: 10px;
+}
+
 .snip-title {
 	margin-bottom: 13px;
 	margin-top: 0;

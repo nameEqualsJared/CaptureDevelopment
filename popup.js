@@ -10,10 +10,10 @@ const dbForTags = new PouchDB("dbForTags");
 class Snip {
 	constructor(_id, url, favIconUrl, title, snipText, tags) {
 		this._id = _id; //A string with the date of when the snip was created. Also the unique ID used to save the snip in the DB
-		this.url = url;
-		this.favIconUrl = favIconUrl;
-		this.title = title;
-		this.snipText = snipText;
+		this.url = url; // string 
+		this.title = title; // string 
+		this.favIconUrl = favIconUrl; // string 
+		this.snipText = snipText; // string
 		this.tags = tags; //an array of all the tags contained in the snupText
 	}
 }

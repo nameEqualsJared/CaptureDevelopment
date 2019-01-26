@@ -1,4 +1,4 @@
-//this module provides 2 common function to popup.js and snips.js
+//this module provides 2 common function to popup.js and snips.js: deleteSnip and updateSnipText. arraysEqual is just included because it is used in updateSnipText.
 
 async function deleteSnip(snip) {
 	//snip -- the document to be removed (the whole thing; not just the id);
@@ -119,4 +119,21 @@ async function updateSnipText(snip, newSnipText) {
 	snip.tags = newTags;
 	dbForSnips.put(snip).catch(err => console.log(err));
 
+}
+
+function arraysEqual(a, b) {
+	//credit to enyo on SO for the function.
+	if (a === b) return true;
+	if (a == null || b == null) return false;
+	if (a.length != b.length) return false;
+
+	// If you don't care about the order of the elements inside
+	// the array, you should sort both arrays here.
+	let aSorted = a.sort();
+	let bSorted = b.sort();
+
+	for (var i = 0; i < aSorted.length; ++i) {
+		if (aSorted[i] !== bSorted[i]) return false;
+	}
+	return true;
 }
