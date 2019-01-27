@@ -49,7 +49,7 @@ function saveANewSnip() {
 		const _id = new Date().toLocaleString();
 
 		//Constructing the new snip.
-		currentSnip = new Snip(_id, currentURL, currentFavIconUrl, currentTitle, snipText, uniqueTags);
+		const currentSnip = new Snip(_id, currentURL, currentFavIconUrl, currentTitle, snipText, uniqueTags);
 
 		//saving this snip to all of its tags in dbForTags
 		for (let tag of currentSnip.tags) {

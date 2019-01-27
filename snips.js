@@ -65,9 +65,8 @@ function formatDate(snipID) {
     return `${months[date.getMonth()]} ${date.getDay()} ${date.getFullYear()}, ${date.toLocaleTimeString()}`;
 }
 
-
-
 // -- End utility functions --
+
 
 // link up the export button
 document.querySelector(".export-button").onclick = function () {
@@ -177,7 +176,7 @@ class MainUI {
         ta.onchange = async () => {
             try {
                 let snipToUpdate = await dbForSnips.get(snip._id);
-                await updateSnipText(snipToUpdate, ta.value); // update the snip with the new text (properly updates both DBs).
+                await this.updateSnipText(snipToUpdate, ta.value); // update the snip with the new text (properly updates both DBs).
                 this.TagUI.renderSideTags(); // update the tags on the left.
             } catch (err) {
                 console.log(err);
@@ -314,6 +313,7 @@ class MainUI {
         snip.tags = newTags;
         dbForSnips.put(snip).catch(err => console.log(err));
     }
+
 }
 
 class TagUI {
