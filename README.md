@@ -51,7 +51,7 @@ This database stores Snip objects. Snips are note+site combos. Each snip object 
        
    
 #### 2. The `dbForTags` database   
-My idea her is that I wanted to keep a database that keeps a [tag]-->[array of snip ids with that tag] mapping, so that it would be easy to look up snips with a certain tag. This is what this second database does; its objects are structured like so:         
+My idea here is that I wanted to keep a database that keeps a [tag]-->[array of snip ids with that tag] mapping, so that it would be easy to look up snips with a certain tag. This is what this second database does; its objects are structured like so:         
       
 | **Property**  | **Type** | **Description**                                                                                   |
 |---------------|----------|---------------------------------------------------------------------------------------------------|
