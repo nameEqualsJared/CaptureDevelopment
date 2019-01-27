@@ -62,7 +62,7 @@ function formatDate(snipID) {
     // given a snipID (which is the date the snip was taked on), this function returns a nicer looking date as a string
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "November", "December"]
     const date = new Date(snipID);
-    return `${months[date.getMonth()]} ${date.getDay()} ${date.getFullYear()}, ${date.toLocaleTimeString()}`;
+    return `${months[date.getMonth()]} ${date.getDate()} ${date.getFullYear()}, ${date.toLocaleTimeString()}`;
 }
 
 // -- End utility functions --
@@ -367,7 +367,8 @@ class TagUI {
                 const i = document.createElement("i");
                 i.className = "fas fa-tag";
                 btn.appendChild(i);
-                btn.textContent = tagName;
+                const btnText = document.createTextNode(tagName);
+                btn.appendChild(btnText);
                 sideTagsDiv.appendChild(btn);
 
                 //additional property added on to the button, which tracks whether or not it is toggled on. Defaults to false
