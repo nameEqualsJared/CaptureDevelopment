@@ -47,7 +47,7 @@ This database stores Snip objects. Snips are note+site combos. Each snip object 
 | `.snipText`   | string   | the note associated with the snip                                                                 |
 | `.tags`       | array    | an array of all the tags in the snip<sup>1</sup>.                                                 |
        
-<sup>1</sup>. Each tag is stored as a string, and the hashtag is removed. Further, only unique tags are stored. Thus, a `.snipText` like this: "#foo #foo #bar" would results in `.tags` being `["foo", "bar"]`.     
+<sup>1</sup>. Each tag is stored as a string, and the hashtag is removed. Further, only unique tags are stored. Thus, a `.snipText` of this: "#foo #foo #bar" would result in `.tags` being `["foo", "bar"]`.     
        
    
 #### 2. The `dbForTags` database   
