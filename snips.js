@@ -41,6 +41,23 @@ function arraySubtract(a, b) {
     return res;
 }
 
+function arraysEqual(a, b) {
+    //credit to enyo on SO for the function.
+    if (a === b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    // If you don't care about the order of the elements inside
+    // the array, you should sort both arrays here.
+    let aSorted = a.sort();
+    let bSorted = b.sort();
+
+    for (var i = 0; i < aSorted.length; ++i) {
+        if (aSorted[i] !== bSorted[i]) return false;
+    }
+    return true;
+}
+
 function formatDate(snipID) {
     // given a snipID (which is the date the snip was taked on), this function returns a nicer looking date as a string
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "November", "December"]
@@ -48,70 +65,6 @@ function formatDate(snipID) {
     return `${months[date.getMonth()]} ${date.getDay()} ${date.getFullYear()}, ${date.toLocaleTimeString()}`;
 }
 
-
-async function saveANewSnip(snip) {
-    // utility function for stress testing
-    // obj should be a full snip
-
-    //saving this snip to all of its tags in dbForTags
-    for (let tag of snip.tags) {
-        try {
-            const doc = await dbForTags.get(tag);
-            // if we reach here, an entry for this tag already exists in dbForTags
-            //thus, we get the snipsWithThisTag array out, add on the current snip, and save it back 
-            let snipsWithThisTag = doc.snipsWithThisTag;
-            snipsWithThisTag.push(snip._id);
-            dbForTags.put(doc).catch(err => console.log(err));
-
-        } catch (err) {
-            if (err.message === "missing") {
-                //this error means an entry for this tag doesn't exist in dbForTags (i.e., the tag is new) 
-                //thus, we create it
-                await dbForTags.put({ _id: tag, snipsWithThisTag: [snip._id] }).catch(err => console.log(err));
-            } else {
-                console.log(err);
-            }
-        }
-    }
-
-    //saving the Snip in the dbForSnips
-    dbForSnips.put(snip).catch(err => console.log(err));
-
-}
-
-
-function z() {
-    a();
-    b();
-}
-
-function a() {
-    dbForSnips.destroy();
-}
-
-function b() {
-    dbForTags.destroy();
-}
-
-function c() {
-    dbForSnips.allDocs({ include_docs: true, descending: true }, function (err, doc) {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log(doc.rows);
-        }
-    });
-}
-
-function d() {
-    dbForTags.allDocs({ include_docs: true, descending: true }, function (err, doc) {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log(doc.rows);
-        }
-    });
-}
 
 
 // -- End utility functions --
@@ -188,7 +141,7 @@ class MainUI {
         return this.snipsRendered;
     }
 
-    // The following would ideally be a private method
+    // Would ideally be a private method
     renderSnipToHTML(snip) {
         /* This function renders the provided snip (required to have url, title, favIconUrl, snipText, _id, and _rev members) to the page. Specifically, it renders it "into" the RENDER_LOC. */
 
@@ -225,9 +178,7 @@ class MainUI {
             try {
                 let snipToUpdate = await dbForSnips.get(snip._id);
                 await updateSnipText(snipToUpdate, ta.value); // update the snip with the new text (properly updates both DBs).
-
                 this.TagUI.renderSideTags(); // update the tags on the left.
-
             } catch (err) {
                 console.log(err);
             }
@@ -239,7 +190,7 @@ class MainUI {
         d2.className = "flexbox-container";
         const p = document.createElement("p");
         p.className = "snipped-on";
-        p.textContent = "Snipped on " + snip._id; //+ formatDate(snip._id);
+        p.textContent = "Snipped on " + formatDate(snip._id);
         d2.appendChild(p);
 
         //adding a delete button
@@ -271,7 +222,7 @@ class MainUI {
 
     }
 
-    // And again, would also be private
+    // Would ideally be a private method
     async renderAllSnips() {
         //this functions grabs all of the snips out of storage, and renders them into the page
         try {
@@ -285,6 +236,84 @@ class MainUI {
         }
     }
 
+    // Would ideally be a private method
+    async updateSnipText(snip, newSnipText) {
+        /*
+            snip -- a full snip object, required to have atleast the _id, snipText, and tags fields for this function to work 
+    
+            This function properly updates the tags and snipText of a snip, given a newSnipText. That is, it keeps both the databases up to date, in that it:
+            1) Handles the addition or deletion of any tags in the newSnipText, properly updating dbForTags
+            2) updates the snip itself by updating the tag and snipText fields, and saving the snip back in dbForSnips
+        */
+
+        // ------ Step 1: update the dbForTags --------
+
+        // retrieve all the unique tags from the newSnipText (remove duplicates)
+        let tagArrayWithHashtags = newSnipText.match(/(#[0-9a-zA-z-]+)/g);
+        let newTagsWDups = [];
+        if (tagArrayWithHashtags) {
+            //if the tagArrayWithHashtags exists (not null)
+            for (let tag of tagArrayWithHashtags) {
+                newTagsWDups.push(tag.slice(1));
+                //simply add the tags to the array, with the hashtags removed
+            }
+        }
+        let newTags = [...new Set(newTagsWDups)]; // newTags is an array of all the unique tags in the newSnipText
+
+        let oldTags = snip.tags; // these are the tags previously saved in the snip
+
+        // only run the code to update the tags if the oldTags != newTags.
+        if (!arraysEqual(oldTags, newTags)) {
+
+            // For each tag in the old tags, if the tag is no longer present, remove the snips's ID from that tag's entry in dbForTag
+            for (let tag of oldTags) {
+                if (newTags.indexOf(tag) === -1) {
+                    // So this tag is no longer present
+
+                    // Thus, we remove this snip's id from that tag's entry in dbForTags
+                    try {
+                        let doc = await dbForTags.get(tag);
+                        doc.snipsWithThisTag.splice(doc.snipsWithThisTag.indexOf(snip._id), 1);
+                        if (doc.snipsWithThisTag.length === 0) {
+                            // no more snips with this tag (i.e., this was the last one)
+                            // thus, just delete the whole entry in dbForTags
+                            dbForTags.remove(doc).catch(err => console.log(err));
+                        } else {
+                            // otherwise just update this entry in dbForTags
+                            dbForTags.put(doc).catch(err => console.log(err));
+                        }
+                    } catch (err) {
+                        console.log(err);
+                    }
+                }
+            }
+
+            // For each tag in newTags, add this snip's ID to that tag's entry in dbForTags
+            for (let tag of newTags) {
+                try {
+                    let doc = await dbForTags.get(tag);
+                    // add this snip's ID to this tag's entry in dbForTags (if it's not already there), and update the db
+                    if (doc.snipsWithThisTag.indexOf(snip._id) === -1) {
+                        doc.snipsWithThisTag.push(snip._id);
+                    }
+                    dbForTags.put(doc).catch(err => console.log(err));
+                } catch (err) {
+                    if (err.message === "missing") {
+                        // this means that we have a new tag. Thus, create a new entry for it in dbForTags :)
+                        dbForTags.put({ _id: tag, snipsWithThisTag: [snip._id] }).catch(err => console.log(err));
+                    } else {
+                        console.log(err);
+                    }
+                }
+            }
+
+        }
+
+        // ------ Step 2: update the dbForSnips ------
+        snip.snipText = newSnipText;
+        snip.tags = newTags;
+        dbForSnips.put(snip).catch(err => console.log(err));
+    }
 }
 
 class TagUI {

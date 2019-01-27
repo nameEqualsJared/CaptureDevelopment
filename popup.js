@@ -88,6 +88,7 @@ idOfSnipIfAlreadySaved = [];
 //above is meant to be a global. Will only ever hold one element; the id of the snip if one has been saved on this page. This is updated by the saveANewSnip() function and checked in the onclick saveButton event handler below -- these are the only two places the global is used. I use it to solve the problem of "the user may click save multiple times, but only one snip should be saved per page."
 
 saveButton.onclick = async function () {
+	// NOTE: this functiosn references of the idOfSnipIfAlreadySaved global!
 
 	if (idOfSnipIfAlreadySaved.length === 0) {
 		//no snips have been saved yet. (ie, this is the first time the save button has been pushed) 
