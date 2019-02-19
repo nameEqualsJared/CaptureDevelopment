@@ -23,7 +23,7 @@ This is what Capture does. When you are on a site, you can press Alt+S or click 
 You can then hit the Open Snips button to get [this](https://i.imgur.com/Fda8pkq.png). This is the main UI of the extension, where you can see all your snips, filter by tags, read over and edit your notes, delete a snip, and reopen the site you took the snip on (the titles are clickable links). There is also an "Export all Snips" button so your notes never get "stuck" in the extension. The sidebar is fixed: the main part of the page is where you can scroll through all your snips.   
      
       
-One last thing to note: the tag system. Filtering by a tag works by clicking on the tag in the sidebar, toggling it on and showing only the snips with that tag, [like so](https://i.imgur.com/1aA49xQ.png). You can also click on multiple tags to show a union of snips: i.e., if the prog and css tags are on, then it will show both the snips with the prog tag and the snips with the css tag, [like this](https://imgur.com/5ea042e9-9c07-4359-ab2e-a44b6879ecc8).
+One last thing to note: the tag system. Filtering by a tag works by clicking on the tag in the sidebar, toggling it on and showing only the snips with that tag, [like so](https://i.imgur.com/1aA49xQ.png). You can also click on multiple tags to show a union of snips: i.e., if the prog and css tags are on, then it will show both the snips with the prog tag and the snips with the css tag, [like this](https://i.imgur.com/SIqCgqI.png).
      
 ## Code explanation   
            
