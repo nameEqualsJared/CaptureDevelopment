@@ -78,9 +78,8 @@ document.querySelector(".contact-button").onclick = function () {
     chrome.tabs.create({ url: "contact.html" });
 }
 
-// link up the databases
-const dbForSnips = new PouchDB("dbForSnips");
-const dbForTags = new PouchDB("dbForTags");
+// link up with data store
+const db = new DB();
 
 // set the constant "RENDER_LOC": the div any snips will be populated in
 const RENDER_LOC = document.getElementById("renderedSnips");
@@ -127,7 +126,7 @@ class MainUI {
             // otherwise, get the each snip out of the db and render it
             for (let snipID of this.snipsRendered) {
                 try {
-                    let snip = await dbForSnips.get(snipID);
+                    const snip = await db.getSnip(snipID);
                     this.renderSnipToHTML(snip);
                 } catch (err) {
                     console.log(err);
@@ -175,8 +174,8 @@ class MainUI {
         ta.value = snip.snipText;
         ta.onchange = async () => {
             try {
-                let snipToUpdate = await dbForSnips.get(snip._id);
-                await this.updateSnipText(snipToUpdate, ta.value); // update the snip with the new text (properly updates both DBs).
+                let snipToUpdate = await db.getSnip(snip._id);
+                await db.updateSnipText(snipToUpdate, ta.value); // update the snip with the new text (properly updates both DBs).
                 this.TagUI.renderSideTags(); // update the tags on the left.
             } catch (err) {
                 console.log(err);
@@ -200,7 +199,7 @@ class MainUI {
             const toDelete = confirm("Are you sure you want to delete this snip? This action cannot be undone!");
             if (toDelete) {
                 //delete the snips from the DBs
-                await deleteSnip(snip);
+                await db.deleteSnip(snip._id);
 
                 //remove the snip from the page
                 b.parentNode.parentNode.parentNode.removeChild(b.parentNode.parentNode);
@@ -225,7 +224,7 @@ class MainUI {
     async renderAllSnips() {
         //this functions grabs all of the snips out of storage, and renders them into the page
         try {
-            const doc = await dbForSnips.allDocs({ include_docs: true, descending: true });
+            const doc = await db.allSnips();
             for (let entry of doc.rows) {
                 const snip = entry.doc;
                 this.renderSnipToHTML(snip);
@@ -233,85 +232,6 @@ class MainUI {
         } catch (err) {
             console.log(err);
         }
-    }
-
-    // Would ideally be a private method
-    async updateSnipText(snip, newSnipText) {
-        /*
-            snip -- a full snip object, required to have atleast the _id, snipText, and tags fields for this function to work 
-    
-            This function properly updates the tags and snipText of a snip, given a newSnipText. That is, it keeps both the databases up to date, in that it:
-            1) Handles the addition or deletion of any tags in the newSnipText, properly updating dbForTags
-            2) updates the snip itself by updating the tag and snipText fields, and saving the snip back in dbForSnips
-        */
-
-        // ------ Step 1: update the dbForTags --------
-
-        // retrieve all the unique tags from the newSnipText (remove duplicates)
-        let tagArrayWithHashtags = newSnipText.match(/(#[0-9a-zA-z-]+)/g);
-        let newTagsWDups = [];
-        if (tagArrayWithHashtags) {
-            //if the tagArrayWithHashtags exists (not null)
-            for (let tag of tagArrayWithHashtags) {
-                newTagsWDups.push(tag.slice(1));
-                //simply add the tags to the array, with the hashtags removed
-            }
-        }
-        let newTags = [...new Set(newTagsWDups)]; // newTags is an array of all the unique tags in the newSnipText
-
-        let oldTags = snip.tags; // these are the tags previously saved in the snip
-
-        // only run the code to update the tags if the oldTags != newTags.
-        if (!arraysEqual(oldTags, newTags)) {
-
-            // For each tag in the old tags, if the tag is no longer present, remove the snips's ID from that tag's entry in dbForTag
-            for (let tag of oldTags) {
-                if (newTags.indexOf(tag) === -1) {
-                    // So this tag is no longer present
-
-                    // Thus, we remove this snip's id from that tag's entry in dbForTags
-                    try {
-                        let doc = await dbForTags.get(tag);
-                        doc.snipsWithThisTag.splice(doc.snipsWithThisTag.indexOf(snip._id), 1);
-                        if (doc.snipsWithThisTag.length === 0) {
-                            // no more snips with this tag (i.e., this was the last one)
-                            // thus, just delete the whole entry in dbForTags
-                            dbForTags.remove(doc).catch(err => console.log(err));
-                        } else {
-                            // otherwise just update this entry in dbForTags
-                            dbForTags.put(doc).catch(err => console.log(err));
-                        }
-                    } catch (err) {
-                        console.log(err);
-                    }
-                }
-            }
-
-            // For each tag in newTags, add this snip's ID to that tag's entry in dbForTags
-            for (let tag of newTags) {
-                try {
-                    let doc = await dbForTags.get(tag);
-                    // add this snip's ID to this tag's entry in dbForTags (if it's not already there), and update the db
-                    if (doc.snipsWithThisTag.indexOf(snip._id) === -1) {
-                        doc.snipsWithThisTag.push(snip._id);
-                    }
-                    dbForTags.put(doc).catch(err => console.log(err));
-                } catch (err) {
-                    if (err.message === "missing") {
-                        // this means that we have a new tag. Thus, create a new entry for it in dbForTags :)
-                        dbForTags.put({ _id: tag, snipsWithThisTag: [snip._id] }).catch(err => console.log(err));
-                    } else {
-                        console.log(err);
-                    }
-                }
-            }
-
-        }
-
-        // ------ Step 2: update the dbForSnips ------
-        snip.snipText = newSnipText;
-        snip.tags = newTags;
-        dbForSnips.put(snip).catch(err => console.log(err));
     }
 
 }
@@ -359,7 +279,7 @@ class TagUI {
 
         // set up all the tag buttons
         try {
-            let docs = await dbForTags.allDocs({ include_docs: false, descending: true });
+            let docs = await db.allTags();
             for (let entry of docs.rows) {
                 //render the snip into the page (as a button)
                 const tagName = entry.id; //tagName is literally the text of the tag
@@ -403,7 +323,7 @@ class TagUI {
 
                 // and this code is what actually makes clicking them update the mainUI.
                 try {
-                    let doc = await dbForTags.get(btn.textContent);
+                    let doc = await db.getTag(btn.textContent);
                     if (btn.toggledOn) {
                         // if the btn has been toggled on, 
                         const snipsToRender = arrayUnion(this.MainUI.getSnipsRendered(), doc.snipsWithThisTag);
