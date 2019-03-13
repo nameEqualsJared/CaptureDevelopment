@@ -41,23 +41,6 @@ function arraySubtract(a, b) {
     return res;
 }
 
-function arraysEqual(a, b) {
-    //credit to enyo on SO for the function.
-    if (a === b) return true;
-    if (a == null || b == null) return false;
-    if (a.length != b.length) return false;
-
-    // If you don't care about the order of the elements inside
-    // the array, you should sort both arrays here.
-    let aSorted = a.sort();
-    let bSorted = b.sort();
-
-    for (var i = 0; i < aSorted.length; ++i) {
-        if (aSorted[i] !== bSorted[i]) return false;
-    }
-    return true;
-}
-
 function formatDate(snipID) {
     // given a snipID (which is the date the snip was taked on), this function returns a nicer looking date as a string
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "November", "December"]
@@ -97,7 +80,7 @@ class MainUI {
             Whilst I certainly wish I didn't have to couple these classes together, I think it is "needed". The reason is that if the user changes a snip in the MainUI, I want the TagUI to automatically update -- thus I need a reference to the TagUI to do this updating. 
             The field is used in the renderSnipToHTML method, to ensure that changing the snipText (and thus perhaps updating the tags) updates the tags on the left. Further, it is also used to update the tags on the left if a snip is deleted.
 
-    It has both a setter and getter for .snipsRendered. Setting the field will update the UI.
+    It has a setter and a getter for the .snipsRendered field. Setting the field will update the UI.
 
     It also contains two (ideally private) helper methods: renderSnipToHTML and renderAllSnips.
 
@@ -105,7 +88,7 @@ class MainUI {
     */
 
     constructor(snipsRendered = []) {
-        this.setSnipsRendered(snipsRendered); // an array of all the ID's of snips to be rendered (if empty will render all).
+        this.setSnipsRendered(snipsRendered); // an array of all the ID's of snips to be rendered (if empty will render all, and defaults to empty).
     }
 
     setTagUiRef(TagUiRef) {
@@ -244,7 +227,9 @@ class TagUI {
             This is set in the setMainUiRef method. It needs to be set for the class to function properly.
             Again, whilst I wish I didn't have to in a sense couple the TagUI and MainUI classes together, I believe this is "needed". The reason is that, if the user clicks on a set of tags on the left, the MainUI needs to update.
             This field is used in the linkSideTags() method, to update the MainUI if the user clicks on a tag.
-    
+
+    The renderSideTags() method just renders the tags on the side. The linkSideTags() method adds the functionality that, if the user clicks a tag, the MainUI is updated to display those tags.
+
     It's constructor will set up the tags on the left, such that clicking on them will appropirately change the snips in the mainUI.
     */
 
@@ -323,12 +308,12 @@ class TagUI {
 
                 // and this code is what actually makes clicking them update the mainUI.
                 try {
-                    let doc = await db.getTag(btn.textContent);
+                    let doc = await db.getTag(btn.textContent); // recall btn.textContent is the tag itself
                     if (btn.toggledOn) {
                         // if the btn has been toggled on, 
                         const snipsToRender = arrayUnion(this.MainUI.getSnipsRendered(), doc.snipsWithThisTag);
 
-                        mainUI.setSnipsRendered(snipsToRender)
+                        this.MainUI.setSnipsRendered(snipsToRender)
                     } else {
                         // otherwise (so the button has been turned off), we will subtract the ids of all snips with this tag
                         const snipsToRender = arraySubtract(this.MainUI.getSnipsRendered(), doc.snipsWithThisTag);

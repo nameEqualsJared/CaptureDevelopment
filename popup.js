@@ -58,14 +58,14 @@ saveButton.onclick = async function () {
 		const idOfOldSnip = idOfSnipIfAlreadySaved[0];
 
 		try {
-			let doc = await DB.getSnip(idOfOldSnip);
+			let doc = await db.getSnip(idOfOldSnip);
 
 			//check if the snipText has changed (don't want to do anything if it hasn't)
 			if (doc.snipText !== document.getElementById("inputText").value) {
 				//the snipText has changed.
 
 				//delete the old snip 
-				DB.deleteSnip(idOfOldSnip);
+				await db.deleteSnip(idOfOldSnip);
 
 				//clear this out; we'll be saving a new snip.
 				idOfSnipIfAlreadySaved.pop();

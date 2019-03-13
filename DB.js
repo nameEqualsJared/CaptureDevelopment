@@ -1,3 +1,21 @@
+// utility function, used in updateSnipText in the class below
+function arraysEqual(a, b) {
+    //credit to enyo on SO for the function.
+    if (a === b) return true;
+    if (a == null || b == null) return false;
+    if (a.length != b.length) return false;
+
+    // If you don't care about the order of the elements inside
+    // the array, you should sort both arrays here.
+    let aSorted = a.sort();
+    let bSorted = b.sort();
+
+    for (var i = 0; i < aSorted.length; ++i) {
+        if (aSorted[i] !== bSorted[i]) return false;
+    }
+    return true;
+}
+
 
 class DB {
     /* 
@@ -8,8 +26,7 @@ class DB {
         dbForSnips stores "Snip" objects as defined by Snip.js. The _id of Snip objects is also the date the snip was saved. 
         dbForTags is used to store a tag --> [id of snips with this tag] mapping. It's objects have two fields: _id, which is the tag, and snipsWithThisTag, which is an array of id's of snips with this tag.
 
-    It provides the following 6 methods in its interface:       
-
+    It provides the following 7 methods in its interface:       
         saveSnip(url, title, favIconUrl, snipText, tags)
             Saves a new snip. Keeps both dbForSnips and dbForTags in sync (i.e., up to date).
             Returns a Promise<string>, where the result of the promise is the _id of the snip (also the date the snip was saved). 
@@ -83,13 +100,13 @@ class DB {
                 //thus, we get the snipsWithThisTag array out, add on the current snip, and save it back 
                 let snipsWithThisTag = doc.snipsWithThisTag;
                 snipsWithThisTag.push(currentSnip._id);
-                dbForTags.put(doc).catch(err => console.log(err));
+                this.dbForTags.put(doc).catch(err => console.log(err));
 
             } catch (err) {
                 if (err.message === "missing") {
                     //this error means an entry for this tag doesn't exist in dbForTags (i.e., the tag is new) 
                     //thus, we create it
-                    dbForTags.put({ _id: tag, snipsWithThisTag: [currentSnip._id] }).catch(err => console.log(err));
+                    this.dbForTags.put({ _id: tag, snipsWithThisTag: [currentSnip._id] }).catch(err => console.log(err));
                 } else {
                     console.log(err);
                 }
@@ -142,15 +159,15 @@ class DB {
 
                     // Thus, we remove this snip's id from that tag's entry in dbForTags
                     try {
-                        let doc = await dbForTags.get(tag);
+                        let doc = await this.dbForTags.get(tag);
                         doc.snipsWithThisTag.splice(doc.snipsWithThisTag.indexOf(snip._id), 1);
                         if (doc.snipsWithThisTag.length === 0) {
                             // no more snips with this tag (i.e., this was the last one)
                             // thus, just delete the whole entry in dbForTags
-                            dbForTags.remove(doc).catch(err => console.log(err));
+                            this.dbForTags.remove(doc).catch(err => console.log(err));
                         } else {
                             // otherwise just update this entry in dbForTags
-                            dbForTags.put(doc).catch(err => console.log(err));
+                            this.dbForTags.put(doc).catch(err => console.log(err));
                         }
                     } catch (err) {
                         console.log(err);
@@ -161,16 +178,16 @@ class DB {
             // For each tag in newTags, add this snip's ID to that tag's entry in dbForTags
             for (let tag of newTags) {
                 try {
-                    let doc = await dbForTags.get(tag);
+                    let doc = await this.dbForTags.get(tag);
                     // add this snip's ID to this tag's entry in dbForTags (if it's not already there), and update the db
                     if (doc.snipsWithThisTag.indexOf(snip._id) === -1) {
                         doc.snipsWithThisTag.push(snip._id);
                     }
-                    dbForTags.put(doc).catch(err => console.log(err));
+                    this.dbForTags.put(doc).catch(err => console.log(err));
                 } catch (err) {
                     if (err.message === "missing") {
                         // this means that we have a new tag. Thus, create a new entry for it in dbForTags :)
-                        dbForTags.put({ _id: tag, snipsWithThisTag: [snip._id] }).catch(err => console.log(err));
+                        this.dbForTags.put({ _id: tag, snipsWithThisTag: [snip._id] }).catch(err => console.log(err));
                     } else {
                         console.log(err);
                     }
@@ -182,7 +199,7 @@ class DB {
         // ------ Step 2: update the dbForSnips ------
         snip.snipText = newSnipText;
         snip.tags = newTags;
-        dbForSnips.put(snip).catch(err => console.log(err));
+        this.dbForSnips.put(snip).catch(err => console.log(err));
     }
 
 
@@ -199,13 +216,13 @@ class DB {
         Method returns a Promise<void>
         */
 
-        const snip = await dbForSnips.get(_id);
+        try {
+            const snip = await this.dbForSnips.get(_id);
 
-        //For each tag in this snip, go into the dbForTags, and get out the snipsWithThisTag array for each tag. Remove this snip's id; we are deleting it.
-        for (let tag of snip.tags) {
+            //For each tag in this snip, go into the dbForTags, and get out the snipsWithThisTag array for each tag. Remove this snip's id; we are deleting it.
+            for (let tag of snip.tags) {
 
-            let doc = await dbForTags.get(tag);
-            try {
+                let doc = await this.dbForTags.get(tag);
                 const snipsWithThisTag = doc.snipsWithThisTag;
 
                 //remove the id from the snipsWithThisTag array (cause we are deleting the snip)
@@ -216,21 +233,20 @@ class DB {
 
                 if (snipsWithThisTag.length === 0) {
                     // no more snips exists with this tag. So just delete the whole entry in dbForTags.
-                    dbForTags.remove(doc).catch(err => console.log(err));
-
+                    this.dbForTags.remove(doc).catch(err => console.log(err));
 
                 } else {
                     // otherwise update the entry in dbForTags
-                    dbForTags.put(doc).catch(err => console.log(err));
+                    this.dbForTags.put(doc).catch(err => console.log(err));
                 }
-            } catch (err) {
-                console.log(err);
             }
 
-        }
+            //delete this snip from dbForSnips
+            this.dbForSnips.remove(snip).catch(err => console.log(err));
 
-        //delete this snip from dbForSnips
-        dbForSnips.remove(snip).catch(err => console.log(err));
+        } catch (err) {
+            console.log(err);
+        }
     }
 
     async getSnip(_id) {
@@ -253,7 +269,7 @@ class DB {
         _id: the _id (the tag) of the tag-snipsWithThisTag pairing to retrieve from dbForTags.
         Method returns a Promise<object>, where the result of the promise is the tag-snipsWithThisTag object being retrieved.
         */
-        return this.dbForTag.get(_id);
+        return this.dbForTags.get(_id);
     }
 
     async allTags() {
@@ -261,6 +277,26 @@ class DB {
         Method returns a Promise<object>, where the result of the promise is an array of all tag-snipsWithThisTag objects in dbForTags.
         */
         return this.dbForTags.allDocs({ include_docs: true, descending: true });
+    }
+
+    // UTILITY, DO REMOVE!
+    destroy() {
+        db.dbForSnips.destroy();
+        db.dbForTags.destroy();
+    }
+
+    // Utility, DO REMOVE!
+    async describe() {
+        console.log("------------\n Contents of dbForSnips follows: ");
+        let allSnips = await this.allSnips();
+        for (let snip of allSnips.rows) {
+            console.log(JSON.stringify(snip));
+        }
+        console.log("------------\n Contents of dbForTags follows: ");
+        let allTags = await this.allTags();
+        for (let tagPairing of allTags.rows) {
+            console.log(JSON.stringify(tagPairing));
+        }
     }
 
 }
