@@ -1,5 +1,5 @@
 
-const dbForSnips = new PouchDB("dbForSnips");
+const db = new DB();
 
 const divForRenderedSnips = document.querySelector(".div-for-rendered-snips");
 
@@ -16,9 +16,8 @@ async function renderAll() {
     // get all the snips out of the db and render them into the page. Very simple formatting but it is supposed to be an export.
 
     try {
-        let allSnips = await dbForSnips.allDocs({ include_docs: true, descending: true });
-        for (let entry of allSnips.rows) {
-            const snip = entry.doc;
+        let allSnips = await db.allSnips();
+        for (let snip of allSnips) {
             renderParagraph("Title: " + snip.title);
             renderParagraph("Link: " + snip.url);
             renderParagraph("Snip Text: " + snip.snipText);

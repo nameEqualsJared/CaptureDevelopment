@@ -41,6 +41,7 @@ function arraySubtract(a, b) {
     return res;
 }
 
+
 function formatDate(snipID) {
     // given a snipID (which is the date the snip was taked on), this function returns a nicer looking date as a string
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "November", "December"]
@@ -142,12 +143,12 @@ class MainUI {
         a.href = snip.url;
         a.textContent = snip.title;
         p1.appendChild(a)
-        const img = document.createElement("img");
-        img.src = snip.favIconUrl;
-        img.height = 20;
-        img.width = 20;
+        // const img = document.createElement("img");
+        // img.src = snip.favIconUrl;
+        // img.height = 20;
+        // img.width = 20;
         d3.appendChild(p1);
-        d3.appendChild(img);
+        // d3.appendChild(img);
         d.appendChild(d3);
 
         //everything for the snip text
@@ -207,9 +208,8 @@ class MainUI {
     async renderAllSnips() {
         //this functions grabs all of the snips out of storage, and renders them into the page
         try {
-            const doc = await db.allSnips();
-            for (let entry of doc.rows) {
-                const snip = entry.doc;
+            const allSnips = await db.allSnips();
+            for (let snip of allSnips) {
                 this.renderSnipToHTML(snip);
             }
         } catch (err) {
@@ -264,10 +264,11 @@ class TagUI {
 
         // set up all the tag buttons
         try {
-            let docs = await db.allTags();
-            for (let entry of docs.rows) {
-                //render the snip into the page (as a button)
-                const tagName = entry.id; //tagName is literally the text of the tag
+            let allTags = await db.allTags();
+            for (let tagPairing of allTags) {
+                //render the tag into the page (as a button)
+                // tagPairing is some object like {_id: "tag", snipsWithThisTag: [array of ids of snips with this tag]}
+                const tagName = tagPairing._id; //tagName is literally the text of the tag
                 const btn = document.createElement("button");
                 const i = document.createElement("i");
                 i.className = "fas fa-tag";

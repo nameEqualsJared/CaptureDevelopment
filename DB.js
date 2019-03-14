@@ -21,7 +21,7 @@ class DB {
     /* 
     This class encapsulates all database access that the extensions makes. In essence, it provides the extension its data store.
     
-    It maintains two separate databases: dbForSnips and dbForTags. How these databases are set up is described in the "Code explanation" section of the Readme. In short though: 
+    It maintains two separate databases: dbForSnips and dbForTags. How these databases are set up is described in the "Code explanation" section of the Readme. In short: 
         Both databases store JS objects. Each object is required to have a unique _id field to retrieve it from the database. The _id field is a string.
         dbForSnips stores "Snip" objects as defined by Snip.js. The _id of Snip objects is also the date the snip was saved. 
         dbForTags is used to store a tag --> [id of snips with this tag] mapping. It's objects have two fields: _id, which is the tag, and snipsWithThisTag, which is an array of id's of snips with this tag.
@@ -58,8 +58,10 @@ class DB {
 
     Currently, this class uses PouchDB as its database technology, though this could be viewed as an implementation detail.
 
+    Also note: this class handles any error it generates. In other words: it should never propagate an error further up, so any code that calls does not need to worry about its methods generating errors.
+
     This class is included for two reasons:
-        1. It reduces complexity in the UI code, by providing a simplified interface to interact with the database/data store in the extension. That is, it abstract away complexity. Specifically the first three methods above do this, because they keep both databases in sync as they work (e.g., when a snip is deleted, both dbForSnips and dbForTags needs to be updated -- this complexity is abstracted away).
+        1. It reduces complexity in the UI code, by providing a simplified interface to interact with the database/data store in the extension. That is, it abstracts away complexity. Specifically the first three methods above do this, because they keep both databases in sync as they work (e.g., when a snip is deleted, both dbForSnips and dbForTags needs to be updated -- this complexity is abstracted away).
 
         2. It reduces the extension's dependency on PouchDB. Before this class's creation, I had references to PouchDB all over the place. If PouchDB even went under / had a non-backwards compatible update / went paid or whatever, I would of course have to switch database technologies. But since my extension had references to PouchDB all over the place, that would be A TON of work. However, now with this class, I would need only reimplement the interface defined above with a different database solution -- then I would be DONE. This is obviously a huge win. By encapsulating database access, not only do I get a more simplified interface, but I improve future maintability.
         Thanks to u/VolitiveGibbon on the code review post for advising me to do this.
@@ -254,14 +256,41 @@ class DB {
         _id: the _id of the snip to retrieve from dbForSnips.
         Method returns a Promise<object>, where the result of the promise is the snip object being retrieved.
         */
-        return this.dbForSnips.get(_id);
+        let snip;
+        try {
+            snip = await this.dbForSnips.get(_id);
+        } catch (err) {
+            console.log(err);
+        }
+        return snip;
     }
 
-    async allSnips() {
+    async allSnips(justIds = false) {
         /*
         Method returns a Promise<object>, where the result of the promise is an array of all snip objects in dbForSnips.
+        
+        If justIds is set to true, the returned array will just contain the ids of all the snips. By default though, the whole snip object is used (not just the id).
         */
-        return this.dbForSnips.allDocs({ include_docs: true, descending: true });
+        let res = [];
+        try {
+            if (justIds) {
+                // special case; each element in return array will just be an id
+                let allSnips = await this.dbForSnips.allDocs({ include_docs: false, descending: true });
+                for (let snipRow of allSnips.rows) {
+                    res.push(snipRow._id); // append just the _id of the snip
+                }
+            } else {
+                //default case; each element in return array will be a whole snip object
+                let allSnips = await this.dbForSnips.allDocs({ include_docs: true, descending: true });
+                for (let snipRow of allSnips.rows) {
+                    res.push(snipRow.doc); // append the whole snip object
+                }
+            }
+        } catch (err) {
+            console.log(err);
+        }
+        return res;
+
     }
 
     async getTag(_id) {
@@ -269,32 +298,61 @@ class DB {
         _id: the _id (the tag) of the tag-snipsWithThisTag pairing to retrieve from dbForTags.
         Method returns a Promise<object>, where the result of the promise is the tag-snipsWithThisTag object being retrieved.
         */
-        return this.dbForTags.get(_id);
+        let tagObj;
+        try {
+            tagObj = await this.dbForTags.get(_id);
+        } catch (err) {
+            console.log(err);
+        }
+        return tagObj;
     }
 
-    async allTags() {
+    async allTags(justIds = false) {
         /*
         Method returns a Promise<object>, where the result of the promise is an array of all tag-snipsWithThisTag objects in dbForTags.
+        
+        If justIds is set to true, the returned array will just contain the ids of all the tag-snipsWithTag objects in dbForTags. In other words: the returned array will just be an array of all the tags. By default though, each element is tag-snipsWithThisTag pairing/object.
         */
-        return this.dbForTags.allDocs({ include_docs: true, descending: true });
+
+        let res = [];
+        try {
+            if (justIds) {
+                // special case; each element in return array will just be an id (a tag)
+                let allTags = await this.dbForTags.allDocs({ include_docs: false, descending: true });
+                for (let tagRow of allTag.rows) {
+                    res.push(tagRow._id); // append just the _id (the tag)
+                }
+            } else {
+                //default case; each element in return array will be a whole tag-snipsWithThisTag object
+                let allTags = await this.dbForTags.allDocs({ include_docs: true, descending: true });
+                for (let tagRow of allTags.rows) {
+                    res.push(tagRow.doc); // append the whole document (the whole tag-snipsWithThisTag object)
+                }
+            }
+        } catch (err) {
+            console.log(err);
+        }
+        return res;
+
+
     }
 
     // UTILITY, DO REMOVE!
     destroy() {
-        db.dbForSnips.destroy();
-        db.dbForTags.destroy();
+        this.destroy();
+        this.destroy();
     }
 
     // Utility, DO REMOVE!
     async describe() {
         console.log("------------\n Contents of dbForSnips follows: ");
         let allSnips = await this.allSnips();
-        for (let snip of allSnips.rows) {
+        for (let snip of allSnips) {
             console.log(JSON.stringify(snip));
         }
         console.log("------------\n Contents of dbForTags follows: ");
         let allTags = await this.allTags();
-        for (let tagPairing of allTags.rows) {
+        for (let tagPairing of allTags) {
             console.log(JSON.stringify(tagPairing));
         }
     }

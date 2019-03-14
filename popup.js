@@ -32,10 +32,15 @@ function saveANewSnip() {
 		}
 		let uniqueTags = [...new Set(tags)]; // we only want to store the unique tags -- don't care about duplicates in the snipText.
 
-		const idOfSnipSaved = await db.saveSnip(currentURL, currentTitle, currentFavIconUrl, currentSnipText, uniqueTags);
+		try {
+			const idOfSnipSaved = await db.saveSnip(currentURL, currentTitle, currentFavIconUrl, currentSnipText, uniqueTags);
 
-		//push the _id of the currently saved snip into the global
-		idOfSnipIfAlreadySaved.push(idOfSnipSaved);
+			//push the _id of the currently saved snip into the global
+			idOfSnipIfAlreadySaved.push(idOfSnipSaved);
+
+		} catch (err) {
+			console.log(err);
+		}
 
 	});
 
@@ -83,7 +88,5 @@ saveButton.onclick = async function () {
 
 
 openSnipsButton.onclick = function () {
-
 	chrome.tabs.create({ url: "mainUI.html" });
-
 }
