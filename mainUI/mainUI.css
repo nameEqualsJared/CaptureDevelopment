@@ -38,15 +38,15 @@ body {
 	background-color: rgb(207, 207, 207);
 }
 
-.tag-sidebar {
+.tag-sidebar-header {
 	background-color: var(--main-bg-color);
 	width: 17%;
-	height: 88%;
+	height: 12%;
 	position: fixed;
 	top: 0px;
 }
 
-.tag-sidebar p {
+.tag-sidebar-header p {
 	text-align: center;
 	font-size: 22px;
 	font-weight: bold;
@@ -56,8 +56,7 @@ body {
 
 .deselect-div {
 	display: flex;
-	flex-direction: column;
-	align-items: center;
+	justify-content: center;
 }
 
 .deselect {
@@ -77,18 +76,22 @@ body {
 }
 
 .tag-sidebar-buttons {
-	display: flex;
-	flex-direction: column;
-	align-items: left;
-	margin-left: 10%;
-	margin-right: 10%;
+	background-color: var(--main-bg-color);
+	width: 17%;
+	height: 75%;
+	position: fixed;
+	top: 12%;
+	overflow-y: auto;
 }
 
 .tag-sidebar-buttons button {
 	cursor: pointer;
 	border: none;
 	font-size: 16px;
-	margin: 1px;
+	margin-top: 1px;
+	margin-bottom: 1px;
+	margin-left: 10%;
+	margin-right: 10%;
 	background-color: rgb(238, 238, 238);
 	text-align: left;
 	min-width: 80%;
