@@ -7,10 +7,11 @@ This repository houses the source code for the [Google Chrome extension Capture]
 1. Click "Clone or Download" and download a ZIP of the project.     
 2. Extract the ZIP to whatever folder you please.  
 3. Open Google Chrome.   
-4. Click the three dots in the upper right hand corner of Chrome, and click Settings.   
-5. Select "Load unpacked extension..."   
-6. Navigate to where you extracted the ZIP file. Select the folder (the entire thing) and press OK.   
-7. Congratulations! You have now installed the development version of Capture. 
+4. Click the three dots in the upper right hand corner of Chrome, and click Settings.    
+5. Click the Hamburger Icon in the top-left corner, then click "Extensions"
+6. Select "Load unpacked"   
+7. Navigate to where you extracted the ZIP file. Select the folder (the entire thing) and press OK.   
+8. Congratulations! You have now installed the development version of Capture. 
       
 ## How Capture works     
         
@@ -63,14 +64,20 @@ My idea here is that I wanted to keep a database that keeps a [tag]-->[array of 
 I figure from here on out the easiest way to explain the code would just be to go file by file.   
          
 `manifest.json` is just the manifest file for the extension; nothing too interesting here.   
-      
-`popup.html` and `popup.css` define the layout and styling of the [aforementioned popup / dialog box](https://i.imgur.com/END0jB0.png). `popup.js` contains the code used to save snips, and keep the two databases up to date. This code regrettably uses a global variable, but I tried to be clear about exactly when and where it will be updated. I couldn't think of a more elegant solution to the "user may click save multiple times on a page, but only one snip should be saved" problem. Any suggestions are welcome for eradicating this pest.    
+         
+`Snip.js` is a simple file defining a Snip object. `dbForSnips` stores Snip objects; so the class defines the exact same structure as I gave above for the `dbForSnips` database.  
+     
+`DB.js` is the first substantial part of the extension's codebase -- there will be two.  
+It declares one class -- called "DB" -- that provides the entire extension its data store. In other words: all the extension's database access goes through this class. Other files link up to this database class (e.g. `const db = new DB()`), and then make calls like db.saveSnip() or db.deleteSnip() to save or delete a snip, respectively.   
+The DB class maintains two databases: `dbForSnips`, and `dbForTags`. These are the exact same databases described above. It has 7 methods: `saveSnip()`, `updateSnipText()`, `deleteSnip()`, `getSnip()`, `allSnips()`, `getTag()`, and `allTags()`. A large portion of the code in those methods is devoted to keeping those two databases in sync. Again, all database access goes through this class: those methods are the interface the extension uses to manipulate its state.
           
-`snipModule.js` just defines one function, deleteSnip(), that is used in two different JS files in the extension. As it turns out, deleting a snip is no trivial task, because you have to update the `dbForSnips`, but you also have to keep the `dbForTags` up to date (eg, remove that snips entry from any of it's previous tags). So that's why that is abstracted out.     
+The `\popup`[] folder contains all the code for the [aformentioned popup / dialog box](https://i.imgur.com/END0jB0.png). `popup.html` and `popup.css` define the layout and styling of the box, respectively. `popup.js` contains the code used to save snips: this file mainly just gets some info about the current page, like the title and url, and then makes a call to `db.saveSnip()`. The code regrettably uses a global variable, but I tried to be clear about exactly when and where it will be updated. I couldn't think of a more elegant solution to the "user may click save multiple times on a page, but only one snip should be saved" problem. Any suggestions are welcome for eradicating this pest.    
+       
+The `\mainUI`[] folder comprises the main UI of the extension --  the one seen [here](https://i.imgur.com/Fda8pkq.png). `mainUI.html` and `mainUI.css` again define the layout and styling of the page, as you may expect.  `mainUI.js` is the second substantial part of the extension's codebase. This is what renders all the snips into the page, and keeps the tags up to date on the side, whilst also adding in the "tag filter" functionality. This file defines two classes, `MainUI` and `TagUI`, which are used to implement the functionality described above.
           
-`snips.html` and `snips.css` define the main UI of the extension, the one seen [here](https://i.imgur.com/Fda8pkq.png). `snips.js` is the main bulk of the extension. This is what renders all the snips into the page, and keeps the tags up to date on the side, whilst also adding in the "tag filter" functionality. This file defines two classes, `TagUI` and `MainUI`, which are used to implement the functionality described above.
-          
-Lastly, `contact.html`, `export.html`, and `export.js` are all just in there to make the Export All Snips and Contact buttons on the Main UI work (they just open those pages).     
+Lastly, `contact.html`, `export.html`, and `export.js` are all just in there to make the Export All Snips and Contact buttons on the Main UI work (they just open those pages).   
+        
+As a hopefully helpful final picture, here is a diagram of the three main classes the extension uses to work: [coming soon...] 
 
             
 ## Acknowledgements   
