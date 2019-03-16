@@ -240,6 +240,7 @@ class TagUI {
 
         const sideTagsDiv = document.querySelector(".tag-sidebar-buttons");
 
+        // clear the tags on the left
         clearChildrenFromDiv(sideTagsDiv);
 
         //Set up the deselect all button

@@ -62,7 +62,7 @@ class DB {
     Also note: this class handles any error it generates. In other words: it should never propagate an error further up, so any code that calls it does not need to worry about its methods generating errors.
 
     This class is included for two reasons:
-        1. It reduces complexity in the UI code, by providing a simplified interface to interact with the database/data store in the extension. That is, it abstracts away complexity. Specifically the first three methods above do this, because they keep both databases in sync as they work (e.g., when a snip is deleted, both dbForSnips and dbForTags needs to be updated -- this complexity is abstracted away).
+        1. It reduces complexity in the UI code, by providing a simplified interface to interact with the database/data store in the extension. That is, it abstracts away complexity. It keeps the two databases in sync for us. Specifically the first three methods above do this, because they keep both databases in sync as they work (e.g., when a snip is deleted, both dbForSnips and dbForTags needs to be updated -- this complexity is abstracted away).
 
         2. It reduces the extension's dependency on PouchDB. Before this class's creation, I had references to PouchDB all over the place. If PouchDB even went under / had a non-backwards compatible update / went paid or whatever, I would of course have to switch database technologies. But since my extension had references to PouchDB all over the place, that would be A TON of work. However, now with this class, I would need only reimplement the interface defined above with a different database solution -- then I would be DONE. This is obviously a huge win. By encapsulating database access, not only do I get a more simplified interface, but I improve future maintability.
         Thanks to u/VolitiveGibbon on the code review post for advising me to do this.
@@ -389,4 +389,5 @@ async function a() {
     for (let snip of snips) {
         await db.utilSave(snip);
     }
+    console.log("done");
 }
