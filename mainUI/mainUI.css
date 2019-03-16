@@ -44,7 +44,6 @@ body {
 	height: 88%;
 	position: fixed;
 	top: 0px;
-	overflow-y: auto;
 }
 
 .tag-sidebar p {

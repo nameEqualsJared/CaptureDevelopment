@@ -1,6 +1,5 @@
 
 // -- Begin utility functions --
-
 function clearChildrenFromDiv(div) {
 
     while (div.firstChild) {
@@ -69,6 +68,7 @@ const RENDER_LOC = document.getElementById("renderedSnips");
 /*
 Note: in what follows, two classes are defined: MainUI and TagUI. These are (regretabbly) coupled together because actions in the MainUI need to update the TagUI, and vice versa. Keep in mind then that each class contains a reference to the other
 */
+
 
 class MainUI {
     /*
@@ -244,7 +244,7 @@ class TagUI {
 
         //Set up the deselect all button
         const deselectButton = document.querySelector(".deselect");
-        deselectButton.onclick = function () {
+        deselectButton.onclick = () => {
             //toggle all the buttons off
             const tagButtons = document.querySelectorAll(".tag-sidebar-buttons button");
             for (let btn of tagButtons) {
@@ -252,7 +252,7 @@ class TagUI {
                 btn.style.backgroundColor = "rgb(238, 238, 238)";
             }
 
-            this.mainUI.setSnipsRendered([]); //update the main UI
+            this.MainUI.setSnipsRendered([]); //update the main UI
 
         }
 

@@ -17,6 +17,7 @@ function arraysEqual(a, b) {
 }
 
 
+
 class DB {
     /* 
     This class encapsulates all database access that the extensions makes. It provides the extension its data store.
@@ -354,4 +355,38 @@ class DB {
         }
     }
 
+    // remove me
+    async utilSave(currentSnip) {
+
+        //saving this snip to all of its tags in dbForTags
+        for (let tag of currentSnip.tags) {
+            try {
+                const doc = await this.dbForTags.get(tag);
+                // if we reach here, an entry for this tag already exists in dbForTags
+                //thus, we get the snipsWithThisTag array out, add on the current snip, and save it back 
+                let snipsWithThisTag = doc.snipsWithThisTag;
+                snipsWithThisTag.push(currentSnip._id);
+                this.dbForTags.put(doc).catch(err => console.log(err));
+
+            } catch (err) {
+                if (err.message === "missing") {
+                    //this error means an entry for this tag doesn't exist in dbForTags (i.e., the tag is new) 
+                    //thus, we create it
+                    this.dbForTags.put({ _id: tag, snipsWithThisTag: [currentSnip._id] }).catch(err => console.log(err));
+                } else {
+                    console.log(err);
+                }
+            }
+        }
+
+        //saving the Snip in the dbForSnips
+        this.dbForSnips.put(currentSnip).catch(err => console.log(err));
+    }
+
+}
+
+async function a() {
+    for (let snip of snips) {
+        await db.utilSave(snip);
+    }
 }
