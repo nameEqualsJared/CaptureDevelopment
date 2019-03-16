@@ -41,14 +41,12 @@ function arraySubtract(a, b) {
     return res;
 }
 
-
 function formatDate(snipID) {
     // given a snipID (which is the date the snip was taked on), this function returns a nicer looking date as a string
     const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "November", "December"]
     const date = new Date(snipID);
     return `${months[date.getMonth()]} ${date.getDate()} ${date.getFullYear()}, ${date.toLocaleTimeString()}`;
 }
-
 // -- End utility functions --
 
 
@@ -68,6 +66,10 @@ const db = new DB();
 // set the constant "RENDER_LOC": the div any snips will be populated in
 const RENDER_LOC = document.getElementById("renderedSnips");
 
+/*
+Note: in what follows, two classes are defined: MainUI and TagUI. These are (regretabbly) coupled together because actions in the MainUI need to update the TagUI, and vice versa. Keep in mind then that each class contains a reference to the other
+*/
+
 class MainUI {
     /*
     This class models the main UI of the page -- the scrollable snip feed.
@@ -76,6 +78,7 @@ class MainUI {
         .snipsRendered: an array of of all ID's of the the snips in the Main UI. 
             This is set in the constructor.
             NOTE: if this array is empty, that is interpreted as "render all snips". Otherwise, it will just render the snips in the array.
+        
         .TagUI: a reference to a TagUI object.
             This is set in the setTagUiRef method. It needs to be set for the class to function properly.
             Whilst I certainly wish I didn't have to couple these classes together, I think it is "needed". The reason is that if the user changes a snip in the MainUI, I want the TagUI to automatically update -- thus I need a reference to the TagUI to do this updating. 
@@ -109,12 +112,8 @@ class MainUI {
         } else {
             // otherwise, get the each snip out of the db and render it
             for (let snipID of this.snipsRendered) {
-                try {
-                    const snip = await db.getSnip(snipID);
-                    this.renderSnipToHTML(snip);
-                } catch (err) {
-                    console.log(err);
-                }
+                const snip = await db.getSnip(snipID);
+                this.renderSnipToHTML(snip);
             }
         }
     }
@@ -143,12 +142,12 @@ class MainUI {
         a.href = snip.url;
         a.textContent = snip.title;
         p1.appendChild(a)
-        // const img = document.createElement("img");
-        // img.src = snip.favIconUrl;
-        // img.height = 20;
-        // img.width = 20;
+        const img = document.createElement("img");
+        img.src = snip.favIconUrl;
+        img.height = 20;
+        img.width = 20;
         d3.appendChild(p1);
-        // d3.appendChild(img);
+        d3.appendChild(img);
         d.appendChild(d3);
 
         //everything for the snip text
@@ -157,13 +156,11 @@ class MainUI {
         ta.cols = 80;
         ta.value = snip.snipText;
         ta.onchange = async () => {
-            try {
-                let snipToUpdate = await db.getSnip(snip._id);
-                await db.updateSnipText(snipToUpdate, ta.value); // update the snip with the new text (properly updates both DBs).
-                this.TagUI.renderSideTags(); // update the tags on the left.
-            } catch (err) {
-                console.log(err);
-            }
+            // Note: an anonymous function is used here so that "this" refers to the surrounding class (MainUI in this case). Otherwise, "this" would refer to the textarea.
+
+            let snipToUpdate = await db.getSnip(snip._id);
+            await db.updateSnipText(snipToUpdate, ta.value); // update the snip with the new text (properly updates both DBs).
+            this.TagUI.renderSideTags(); // update the tags on the left.
         }
         d.appendChild(ta);
 
@@ -207,13 +204,9 @@ class MainUI {
     // Would ideally be a private method
     async renderAllSnips() {
         //this functions grabs all of the snips out of storage, and renders them into the page
-        try {
-            const allSnips = await db.allSnips();
-            for (let snip of allSnips) {
-                this.renderSnipToHTML(snip);
-            }
-        } catch (err) {
-            console.log(err);
+        const allSnips = await db.allSnips();
+        for (let snip of allSnips) {
+            this.renderSnipToHTML(snip);
         }
     }
 
@@ -259,30 +252,26 @@ class TagUI {
                 btn.style.backgroundColor = "rgb(238, 238, 238)";
             }
 
-            mainUI.setSnipsRendered([]); //update the main UI
+            this.mainUI.setSnipsRendered([]); //update the main UI
+
         }
 
         // set up all the tag buttons
-        try {
-            let allTags = await db.allTags();
-            for (let tagPairing of allTags) {
-                //render the tag into the page (as a button)
-                // tagPairing is some object like {_id: "tag", snipsWithThisTag: [array of ids of snips with this tag]}
-                const tagName = tagPairing._id; //tagName is literally the text of the tag
-                const btn = document.createElement("button");
-                const i = document.createElement("i");
-                i.className = "fas fa-tag";
-                btn.appendChild(i);
-                const btnText = document.createTextNode(tagName);
-                btn.appendChild(btnText);
-                sideTagsDiv.appendChild(btn);
+        let allTags = await db.allTags(true); // get all the tags the set justIds = true, so just get the _id's (which are the tags)
+        for (let tag of allTags) {
+            //render the tag into the page (as a button)
+            const btn = document.createElement("button");
+            const i = document.createElement("i");
+            i.className = "fas fa-tag";
+            btn.appendChild(i);
+            const btnText = document.createTextNode(tag);
+            btn.appendChild(btnText);
+            sideTagsDiv.appendChild(btn);
 
-                //additional property added on to the button, which tracks whether or not it is toggled on. Defaults to false
-                btn.toggledOn = false;
-            }
-        } catch (err) {
-            console.log(err);
+            //additional property added on to the button, which tracks whether or not it is toggled on. Defaults to false
+            btn.toggledOn = false;
         }
+
 
         // link up all the buttons so that clicking on them updates the mainUI
         this.linkSideTags();
@@ -308,22 +297,17 @@ class TagUI {
                 }
 
                 // and this code is what actually makes clicking them update the mainUI.
-                try {
-                    let doc = await db.getTag(btn.textContent); // recall btn.textContent is the tag itself
-                    if (btn.toggledOn) {
-                        // if the btn has been toggled on, 
-                        const snipsToRender = arrayUnion(this.MainUI.getSnipsRendered(), doc.snipsWithThisTag);
+                let tagPairing = await db.getTag(btn.textContent); // recall btn.textContent is the tag itself
+                if (btn.toggledOn) {
+                    // if the btn has been toggled on, 
+                    const snipsToRender = arrayUnion(this.MainUI.getSnipsRendered(), tagPairing.snipsWithThisTag);
 
-                        this.MainUI.setSnipsRendered(snipsToRender)
-                    } else {
-                        // otherwise (so the button has been turned off), we will subtract the ids of all snips with this tag
-                        const snipsToRender = arraySubtract(this.MainUI.getSnipsRendered(), doc.snipsWithThisTag);
+                    this.MainUI.setSnipsRendered(snipsToRender)
+                } else {
+                    // otherwise (so the button has been turned off), we will subtract the ids of all snips with this tag
+                    const snipsToRender = arraySubtract(this.MainUI.getSnipsRendered(), tagPairing.snipsWithThisTag);
 
-                        this.MainUI.setSnipsRendered(snipsToRender)
-                    }
-
-                } catch (err) {
-                    console.log(err);
+                    this.MainUI.setSnipsRendered(snipsToRender)
                 }
             }
         }

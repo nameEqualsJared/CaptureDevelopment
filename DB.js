@@ -19,7 +19,7 @@ function arraysEqual(a, b) {
 
 class DB {
     /* 
-    This class encapsulates all database access that the extensions makes. In essence, it provides the extension its data store.
+    This class encapsulates all database access that the extensions makes. It provides the extension its data store.
     
     It maintains two separate databases: dbForSnips and dbForTags. How these databases are set up is described in the "Code explanation" section of the Readme. In short: 
         Both databases store JS objects. Each object is required to have a unique _id field to retrieve it from the database. The _id field is a string.
@@ -58,7 +58,7 @@ class DB {
 
     Currently, this class uses PouchDB as its database technology, though this could be viewed as an implementation detail.
 
-    Also note: this class handles any error it generates. In other words: it should never propagate an error further up, so any code that calls does not need to worry about its methods generating errors.
+    Also note: this class handles any error it generates. In other words: it should never propagate an error further up, so any code that calls it does not need to worry about its methods generating errors.
 
     This class is included for two reasons:
         1. It reduces complexity in the UI code, by providing a simplified interface to interact with the database/data store in the extension. That is, it abstracts away complexity. Specifically the first three methods above do this, because they keep both databases in sync as they work (e.g., when a snip is deleted, both dbForSnips and dbForTags needs to be updated -- this complexity is abstracted away).
@@ -134,7 +134,6 @@ class DB {
         
         This method returns Promise<void>.
         */
-
 
         // ------ Step 1: update the dbForTags --------
         // retrieve all the unique tags from the newSnipText (remove duplicates)
@@ -217,7 +216,6 @@ class DB {
 
         Method returns a Promise<void>
         */
-
         try {
             const snip = await this.dbForSnips.get(_id);
 
@@ -269,7 +267,7 @@ class DB {
         /*
         Method returns a Promise<object>, where the result of the promise is an array of all snip objects in dbForSnips.
         
-        If justIds is set to true, the returned array will just contain the ids of all the snips. By default though, the whole snip object is used (not just the id).
+        If justIds is set to true, the returned array will just contain the ids of all the snips (all the dates essentially). By default though, the whole snip object is used (not just the id).
         */
         let res = [];
         try {
@@ -311,16 +309,15 @@ class DB {
         /*
         Method returns a Promise<object>, where the result of the promise is an array of all tag-snipsWithThisTag objects in dbForTags.
         
-        If justIds is set to true, the returned array will just contain the ids of all the tag-snipsWithTag objects in dbForTags. In other words: the returned array will just be an array of all the tags. By default though, each element is tag-snipsWithThisTag pairing/object.
+        If justIds is set to true, the returned array will just contain the ids of all the tag-snipsWithTag objects in dbForTags. In other words: the returned array will just be an array of all the tags. By default though, each element is a tag-snipsWithThisTag pairing/object.
         */
-
         let res = [];
         try {
             if (justIds) {
                 // special case; each element in return array will just be an id (a tag)
                 let allTags = await this.dbForTags.allDocs({ include_docs: false, descending: true });
-                for (let tagRow of allTag.rows) {
-                    res.push(tagRow._id); // append just the _id (the tag)
+                for (let tagRow of allTags.rows) {
+                    res.push(tagRow.id); // append just the _id (the tag)
                 }
             } else {
                 //default case; each element in return array will be a whole tag-snipsWithThisTag object
@@ -337,10 +334,10 @@ class DB {
 
     }
 
-    // UTILITY, DO REMOVE!
+    // Utility, DO REMOVE!
     destroy() {
-        this.destroy();
-        this.destroy();
+        this.dbForSnips.destroy();
+        this.dbForTags.destroy();
     }
 
     // Utility, DO REMOVE!

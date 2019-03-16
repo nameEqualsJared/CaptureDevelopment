@@ -15,19 +15,16 @@ function renderParagraph(text) {
 async function renderAll() {
     // get all the snips out of the db and render them into the page. Very simple formatting but it is supposed to be an export.
 
-    try {
-        let allSnips = await db.allSnips();
-        for (let snip of allSnips) {
-            renderParagraph("Title: " + snip.title);
-            renderParagraph("Link: " + snip.url);
-            renderParagraph("Snip Text: " + snip.snipText);
-            renderParagraph("Tags: " + snip.tags);
-            renderParagraph("Date: " + snip._id);
-            divForRenderedSnips.appendChild(document.createElement("br"));
-        }
-    } catch (err) {
-        console.log(err);
+    let allSnips = await db.allSnips();
+    for (let snip of allSnips) {
+        renderParagraph("Title: " + snip.title);
+        renderParagraph("Link: " + snip.url);
+        renderParagraph("Snip Text: " + snip.snipText);
+        renderParagraph("Tags: " + snip.tags);
+        renderParagraph("Date: " + snip._id);
+        divForRenderedSnips.appendChild(document.createElement("br"));
     }
+
 }
 
 renderAll();
