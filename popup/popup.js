@@ -79,5 +79,5 @@ saveButton.onclick = async function () {
 
 
 openSnipsButton.onclick = function () {
-	chrome.tabs.create({ url: "mainUI.html" });
+	chrome.tabs.create({ url: "../mainUI/mainUI.html" });
 }
