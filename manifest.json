@@ -1,7 +1,7 @@
 {
-	"name": "Project Capture",
+	"name": "Capture",
 	"version": "1.0",
-	"description": "Minimum Viable Product of Capture",
+	"description": "Save your tabs away, along with notes, for future use.",
 	"manifest_version": 2,
 	"permissions": [
 		"tabs",

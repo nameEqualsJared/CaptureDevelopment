@@ -51,12 +51,12 @@ function formatDate(snipID) {
 
 // link up the export button
 document.querySelector(".export-button").onclick = function () {
-    chrome.tabs.create({ url: "export.html" });
+    chrome.tabs.create({ url: "mainUI/export.html" });
 }
 
 //link up the contact button
 document.querySelector(".contact-button").onclick = function () {
-    chrome.tabs.create({ url: "contact.html" });
+    chrome.tabs.create({ url: "mainUI/contact.html" });
 }
 
 // link up with data store
@@ -66,7 +66,7 @@ const db = new DB();
 const RENDER_LOC = document.getElementById("renderedSnips");
 
 /*
-Note: in what follows, two classes are defined: MainUI and TagUI. These are (regretabbly) coupled together because actions in the MainUI need to update the TagUI, and vice versa. Keep in mind then that each class contains a reference to the other
+Note: in what follows, two classes are defined: MainUI and TagUI. These are (regretably) coupled together because actions in the MainUI need to update the TagUI, and vice versa. So do keep in mind then that each class contains a reference to the other.
 */
 
 
