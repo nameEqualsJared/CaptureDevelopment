@@ -76,7 +76,7 @@ The [`/mainUI`](https://github.com/nameEqualsJared/CaptureDevelopment/tree/maste
           
 Lastly, `contact.html`, `export.html`, and `export.js` are all just in there to make the Export All Snips and Contact buttons on the Main UI work (they just open those pages).   
         
-As a hopefully helpful final picture, here is a diagram of the three main classes the extension uses to work:  
+As a hopefully helpful final picture, here is a diagram of the three main classes mentioned above:  
      
 ![Diagram of three main classes in Capture codebase](https://i.imgur.com/WnFcir5.png)
 
