@@ -64,7 +64,7 @@ I figure from here on out the easiest way to explain the code would just be to g
          
 `manifest.json` is just the manifest file for the extension; nothing too interesting here.   
          
-`Snip.js` is a simple file defining a Snip object. `dbForSnips` stores Snip objects; so the class defines the exact same structure as I gave above for the `dbForSnips` database.  
+`Snip.js` is a simple file defining a Snip object. **dbForSnips** stores Snip objects; so the class defines the exact same structure as I gave above for the **dbForSnips** database.  
      
 `DB.js` is the first substantial part of the extension's codebase -- there will be two.  
 It declares one class -- called "DB" -- that provides the entire extension its data store. In other words: all the extension's database access goes through this class. Other files link up to this database class (e.g. `const db = new DB()`), and then make calls like `db.saveSnip()` or `db.deleteSnip()` to save or delete a snip, respectively.   
