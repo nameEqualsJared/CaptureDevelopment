@@ -11,10 +11,7 @@
   Capture lets you save your tabs away, along with notes, for future use. It also has a tagging system, so that you can easily filter through your notes.
 </p>
 
-
-<p align="center">
-    <img alt="Capture Demonstration" title="Capture Demonstration" src="https://i.imgur.com/auYoeJ3.gifv">
-</p>
+![Gif of Capture in Action](https://i.imgur.com/auYoeJ3.gifv)
 
  
       
