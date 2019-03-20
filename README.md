@@ -12,7 +12,7 @@
 </p>
 
 
-![Gif of Capture in Action](https://i.imgur.com/zPWOMgm.mp4)
+![Gif of Capture in Action](https://i.imgur.com/zPWOMgm.gif)
 
  
       
