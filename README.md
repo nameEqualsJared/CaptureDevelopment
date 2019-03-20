@@ -1,9 +1,20 @@
 # CaptureDevelopment
-This repository houses the source code for the [Google Chrome extension Capture](#). It is currently in development.   
+
+<p align="center">
+    <img alt="Capture Logo" title="Capture Logo" src="https://i.imgur.com/XPvMO12.png">
+</p>
+
+<p align="center">
+    This repository houses the source code for the <a href="#">Google Chrome extension Capture</a>. It is currently in development.
+</p>
+<p align="center">    
+  Capture lets you save your tabs away, along with notes, for future use. It also has a tagging system, so that you can easily filter through your notes.
+</p>
+ 
       
-## To download the extension and get it working on your system:     
+## To download and install the development version of Capture:     
     
-1. Click "Clone or Download" and download a ZIP of the project.     
+1. Click "Clone or Download" and download a ZIP of the repository.     
 2. Extract the ZIP to whatever folder you please.  
 3. Open Google Chrome.   
 4. Click the three dots in the upper right hand corner of Chrome, and click Settings.    
@@ -67,12 +78,12 @@ I figure from here on out the easiest way to explain the code would just be to g
 `Snip.js` is a simple file defining a Snip object. **dbForSnips** stores Snip objects; so the class defines the exact same structure as I gave above for the **dbForSnips** database.  
      
 `DB.js` is the first substantial part of the extension's codebase -- there will be two.  
-It declares one class -- called "DB" -- that provides the entire extension its data store. In other words: all the extension's database access goes through this class. Other files link up to this database class (e.g. `const db = new DB()`), and then make calls like `db.saveSnip()` or `db.deleteSnip()` to save or delete a snip, respectively.   
-The DB class maintains two databases: **dbForSnips**, and **dbForTags**. These are the exact same databases described above. It has 7 methods: `saveSnip()`, `updateSnipText()`, `deleteSnip()`, `getSnip()`, `allSnips()`, `getTag()`, and `allTags()`. A large portion of the code in those methods is devoted to keeping the two databases in sync. Again, all database access goes through this class: those methods are the interface the extension uses to manipulate its state.
+It declares one class -- called `DB` -- that provides the entire extension its data store. In other words: all the extension's database access goes through this class. Other files link up to this database class (e.g. `const db = new DB()`), and then make calls like db.saveSnip() or db.deleteSnip() to save or delete a snip, respectively.   
+The DB class maintains two databases: **dbForSnips**, and **dbForTags**. These are the exact same databases described above. It has 7 methods: saveSnip(), updateSnipText(), deleteSnip(), getSnip(), allSnips(), getTag(), and allTags(). A large portion of the code in those methods is devoted to keeping the two databases in sync. Again, all database access goes through this class: those methods are the interface the extension uses to manipulate its state.
           
 The [`/popup`](https://github.com/nameEqualsJared/CaptureDevelopment/tree/master/popup) folder contains all the code for the [aformentioned popup / dialog box](https://i.imgur.com/END0jB0.png). `popup.html` and `popup.css` define the layout and styling of the box, respectively. `popup.js` contains the code used to save snips: this file mainly just gets some info about the current page, like the title and url, and then makes a call to `db.saveSnip()`. The code regrettably uses a global variable, but I tried to be clear about exactly when and where it will be updated. I couldn't think of a more elegant solution to the "user may click save multiple times on a page, but only one snip should be saved" problem. Any suggestions are welcome for eradicating this pest.    
        
-The [`/mainUI`](https://github.com/nameEqualsJared/CaptureDevelopment/tree/master/mainUI) folder comprises the main UI of the extension --  the one seen [here](https://i.imgur.com/Fda8pkq.png). `mainUI.html` and `mainUI.css` again define the layout and styling of the page, as you may expect. `mainUI.js` is the second substantial part of the extension's codebase. This is what renders all the snips into the page, and keeps the tags up to date on the side, whilst also adding in the tag filter functionality. This file defines two classes, `MainUI` and `TagUI`, which are used to implement the functionality described above. The MainUI class defines the scrollable snip feed in the center of the page. The TagUI class defines the tags on the left. These classes are (regretabbly) coupled togehter; i.e., each class holds a reference to the other. I believe this is necesarry though, because changes in the TagUI need to effect the MainUI, and changes in the MainUI need to effect the TagUI.
+The [`/mainUI`](https://github.com/nameEqualsJared/CaptureDevelopment/tree/master/mainUI) folder comprises the main UI of the extension --  the one seen [here](https://i.imgur.com/Fda8pkq.png). `mainUI.html` and `mainUI.css` again define the layout and styling of the page, as you may expect. `mainUI.js` is the second substantial part of the extension's codebase. This is what renders all the snips into the page, and keeps the tags up to date on the side, whilst also adding in the tag filter functionality. This file defines two classes, `MainUI` and `TagUI`, which are used to implement this functionality. The MainUI class defines the scrollable snip feed in the center of the page. The TagUI class defines the tags on the left. These classes are (regretabbly) coupled together; i.e., each class holds a reference to the other. I believe this is necesarry though, because changes in the TagUI need to affect the MainUI, and changes in the MainUI need to affect the TagUI.
           
 Lastly, `contact.html`, `export.html`, and `export.js` are all just in there to make the Export All Snips and Contact buttons on the Main UI work (they just open those pages).   
         
@@ -83,5 +94,7 @@ As a hopefully helpful final picture, here is a diagram of the three main classe
             
 ## Acknowledgements   
          
-My many thanks [to the people over on r/learnprogramming](https://www.reddit.com/r/learnprogramming/comments/aggpbp/just_finished_my_first_chrome_extension_and_would/) who reviewed this code! I appreciate it immensely.
+My many thanks [to the people over on r/learnprogramming](https://www.reddit.com/r/learnprogramming/comments/aggpbp/just_finished_my_first_chrome_extension_and_would/) who reviewed this code! I appreciate it immensely.    
+     
+Also, shoutout to my awesome sister for the logo.
 
