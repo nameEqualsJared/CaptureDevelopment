@@ -5,8 +5,9 @@
 </p>
 
 <p align="center">
-  This repository houses the source code for the [Google Chrome extension Capture](#). It is currently in development.
-  Capture lets you save your tabs away, along with notes, for future use.
+    This repository houses the source code for the <a href="#">Google Chrome extension Capture</a>. It is currently in development.
+   
+    Capture lets you save your tabs away, along with notes, for future use.
 </p>
  
       
@@ -76,8 +77,8 @@ I figure from here on out the easiest way to explain the code would just be to g
 `Snip.js` is a simple file defining a Snip object. **dbForSnips** stores Snip objects; so the class defines the exact same structure as I gave above for the **dbForSnips** database.  
      
 `DB.js` is the first substantial part of the extension's codebase -- there will be two.  
-It declares one class -- called "DB" -- that provides the entire extension its data store. In other words: all the extension's database access goes through this class. Other files link up to this database class (e.g. `const db = new DB()`), and then make calls like `db.saveSnip()` or `db.deleteSnip()` to save or delete a snip, respectively.   
-The DB class maintains two databases: **dbForSnips**, and **dbForTags**. These are the exact same databases described above. It has 7 methods: `saveSnip()`, `updateSnipText()`, `deleteSnip()`, `getSnip()`, `allSnips()`, `getTag()`, and `allTags()`. A large portion of the code in those methods is devoted to keeping the two databases in sync. Again, all database access goes through this class: those methods are the interface the extension uses to manipulate its state.
+It declares one class -- called "DB" -- that provides the entire extension its data store. In other words: all the extension's database access goes through this class. Other files link up to this database class (e.g. `const db = new DB()`), and then make calls like db.saveSnip() or db.deleteSnip() to save or delete a snip, respectively.   
+The DB class maintains two databases: **dbForSnips**, and **dbForTags**. These are the exact same databases described above. It has 7 methods: saveSnip(), updateSnipText(), deleteSnip(), getSnip(), allSnips(), getTag(), and allTags(). A large portion of the code in those methods is devoted to keeping the two databases in sync. Again, all database access goes through this class: those methods are the interface the extension uses to manipulate its state.
           
 The [`/popup`](https://github.com/nameEqualsJared/CaptureDevelopment/tree/master/popup) folder contains all the code for the [aformentioned popup / dialog box](https://i.imgur.com/END0jB0.png). `popup.html` and `popup.css` define the layout and styling of the box, respectively. `popup.js` contains the code used to save snips: this file mainly just gets some info about the current page, like the title and url, and then makes a call to `db.saveSnip()`. The code regrettably uses a global variable, but I tried to be clear about exactly when and where it will be updated. I couldn't think of a more elegant solution to the "user may click save multiple times on a page, but only one snip should be saved" problem. Any suggestions are welcome for eradicating this pest.    
        
