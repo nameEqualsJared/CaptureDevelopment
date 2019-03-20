@@ -96,5 +96,5 @@ As a hopefully helpful final picture, here is a diagram of the three main classe
          
 My many thanks [to the people over on r/learnprogramming](https://www.reddit.com/r/learnprogramming/comments/aggpbp/just_finished_my_first_chrome_extension_and_would/) who reviewed this code! I appreciate it immensely.    
      
-Also, shoutout to my awesome sister who made the logo for me.
+Also, shoutout to my awesome sister for the logo.
 
