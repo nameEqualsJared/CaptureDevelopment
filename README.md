@@ -1,7 +1,13 @@
 # CaptureDevelopment
-This repository houses the source code for the [Google Chrome extension Capture](#). It is currently in development.   
-         
-Capture lets you save your tabs away, along with notes, for future use.  ![Capture Logo](https://i.imgur.com/XPvMO12.png)
+
+<p align="center">
+    <img alt="Capture Logo" title="Capture Logo" src="https://i.imgur.com/XPvMO12.png">
+</p>
+
+<p align="center">
+  This repository houses the source code for the [Google Chrome extension Capture](#). It is currently in development.
+  Capture lets you save your tabs away, along with notes, for future use.
+</p>
  
       
 ## To download the development version of Capture:     
