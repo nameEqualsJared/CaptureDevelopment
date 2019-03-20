@@ -8,13 +8,8 @@
     This repository houses the source code for the <a href="#">Google Chrome extension Capture</a>. It is currently in development.
 </p>
 <p align="center">    
-  Capture lets you save your tabs away, along with notes, for future use. It also has a tagging system, so that you can easily filter through your notes. Here's a gif of Capture in action: 
+  Capture lets you save your tabs away, along with notes, for future use. It also has a tagging system, so that you can easily filter through your notes. [Here's a gif of Capture in action](https://i.imgur.com/ogx4vMw.gif)
 </p>
-
-
-![Gif of Capture in Action](https://i.imgur.com/zPWOMgm.gif)
-
- 
       
 ## To download and install the development version of Capture:     
     
