@@ -1,9 +1,12 @@
 # CaptureDevelopment
 This repository houses the source code for the [Google Chrome extension Capture](#). It is currently in development.   
+         
+Capture lets you save your tabs away, along with notes, for future use.  ![Capture Logo](https://i.imgur.com/XPvMO12.png)
+ 
       
-## To download the extension and get it working on your system:     
+## To download the development version of Capture:     
     
-1. Click "Clone or Download" and download a ZIP of the project.     
+1. Click "Clone or Download" and download a ZIP of the repository.     
 2. Extract the ZIP to whatever folder you please.  
 3. Open Google Chrome.   
 4. Click the three dots in the upper right hand corner of Chrome, and click Settings.    
