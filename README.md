@@ -66,7 +66,7 @@ My idea here is that I wanted to keep a database that keeps a [tag]-->[array of 
 | **Property**  | **Type** | **Description**                                                                                   |
 |---------------|----------|---------------------------------------------------------------------------------------------------|
 | `._id`        | string   | a tag, and of course the unique id used to get this object from the database |
-| `.url`        | array   | an array of all the .id's of the snips with this tag                                          |
+| `.snipsWithThisTag`        | array   | an array of all the .id's of the snips with this tag                                          |
    
    
          
